@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1e3a5f">
+<link rel="manifest" href="./manifest.webmanifest">
+<title>Finanzas Familiares</title>
+<script src="./chart.min.js"></script>
+<style>
+  :root {
+    --bg:#f0f4f8; --card:#fff; --navy:#1e3a5f; --blue:#2563eb; --green:#10b981;
+    --red:#ef4444; --amber:#f59e0b; --purple:#7c3aed; --teal:#0891b2; --text:#1f2937;
+    --muted:#6b7280; --border:#e5e7eb; --shadow:0 1px 3px rgba(0,0,0,.10),0 1px 2px rgba(0,0,0,.06);
+    --shadow-md:0 4px 6px rgba(0,0,0,.07),0 2px 4px rgba(0,0,0,.06);
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Segoe UI',system-ui,sans-serif; background:var(--bg); color:var(--text); font-size:14px; }
+  header { background:var(--navy); color:#fff; padding:14px 18px; }
+  header h1 { font-size:1.1rem; font-weight:600; }
+  header .sub { font-size:.75rem; color:#93c5fd; margin-top:2px; }
+
+  /* Tabs */
+  .tabs { display:flex; background:var(--navy); padding:0 10px; gap:4px; }
+  .tab { flex:1; padding:11px 8px; text-align:center; font-size:.82rem; font-weight:600;
+         color:#93c5fd; background:transparent; border:0; cursor:pointer;
+         border-bottom:3px solid transparent; }
+  .tab.on { color:#fff; border-bottom-color:var(--amber); }
+
+  main { max-width:1280px; margin:0 auto; padding:16px 12px; }
+  .aviso { font-size:.72rem; color:var(--muted); background:#fffbeb; border-left:3px solid var(--amber);
+           padding:7px 10px; border-radius:5px; margin-bottom:14px; }
+  .aviso.ofi { background:#eff6ff; border-left-color:var(--blue); }
+
+  .kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(148px,1fr)); gap:11px; margin-bottom:16px; }
+  .kpi-card { background:var(--card); border-radius:12px; padding:14px; box-shadow:var(--shadow); border-top:4px solid var(--blue); }
+  .kpi-card.green{border-color:var(--green)} .kpi-card.red{border-color:var(--red)}
+  .kpi-card.amber{border-color:var(--amber)} .kpi-card.purple{border-color:var(--purple)}
+  .kpi-card.teal{border-color:var(--teal)}
+  .kpi-label { font-size:.7rem; font-weight:600; text-transform:uppercase; letter-spacing:.4px; color:var(--muted); margin-bottom:5px; }
+  .kpi-value { font-size:1.35rem; font-weight:700; line-height:1.1; }
+  .kpi-sub { font-size:.71rem; color:var(--muted); margin-top:5px; }
+
+  /* Filtros: cada grupo en su propio bloque, claramente separado del siguiente */
+  .filtros { display:flex; flex-wrap:wrap; gap:10px 26px; align-items:flex-start; margin-bottom:14px;
+             background:var(--card); padding:12px; border-radius:10px; box-shadow:var(--shadow); }
+  .fgrupo { display:flex; flex-direction:column; gap:6px; padding-right:26px;
+            border-right:1px solid var(--border); }
+  .fgrupo:last-child { border-right:0; padding-right:0; }
+  .fchips { display:flex; flex-wrap:wrap; gap:6px; }
+  .filtros .lbl { font-size:.68rem; font-weight:700; color:var(--navy); text-transform:uppercase;
+                  letter-spacing:.6px; }
+  .chip { padding:6px 12px; border-radius:99px; border:1px solid var(--border); background:#fff;
+          font-size:.78rem; cursor:pointer; color:var(--text); }
+  .chip.on { background:var(--navy); color:#fff; border-color:var(--navy); font-weight:600; }
+  @media(max-width:760px){
+    .fgrupo { border-right:0; padding-right:0; width:100%; padding-bottom:10px;
+              border-bottom:1px solid var(--border); }
+    .fgrupo:last-child { border-bottom:0; padding-bottom:0; }
+  }
+
+  .chart-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px; }
+  @media(max-width:760px){ .chart-grid{ grid-template-columns:1fr; } }
+  .card,.card-full { background:var(--card); border-radius:12px; padding:15px; box-shadow:var(--shadow-md); }
+  .card-full { margin-bottom:16px; }
+  .card-title { font-size:.8rem; font-weight:700; color:var(--navy); text-transform:uppercase;
+                border-bottom:2px solid var(--border); padding-bottom:8px; margin-bottom:12px; }
+  .chart-wrap { position:relative; height:250px; } .chart-wrap-sm { position:relative; height:225px; }
+
+  /* Vista de analisis */
+  .an-hero { display:flex; gap:18px; align-items:center; flex-wrap:wrap; }
+  .an-hero-txt { flex:1 1 220px; }
+  .an-hero-num { font-size:2rem; font-weight:700; line-height:1.1; margin:4px 0 2px; }
+  .an-hero-sub { font-size:.82rem; color:var(--muted); }
+  .an-hero-chart { flex:1 1 300px; height:120px; position:relative; }
+  .an-nota { font-size:.76rem; color:var(--muted); margin:-4px 0 12px; }
+  /* Barra divergente: sobre/bajo el promedio. Gris al centro, no un color */
+  .an-row { display:grid; grid-template-columns:minmax(96px,1fr) 2.4fr auto; gap:10px;
+            align-items:center; padding:7px 0; border-bottom:1px solid var(--border); }
+  .an-row:last-child { border-bottom:0; }
+  .an-cat { font-size:.8rem; font-weight:600; }
+  .an-cat small { display:block; font-weight:400; color:var(--muted); font-size:.7rem; }
+  .an-barra { position:relative; height:16px; background:#f1f5f9; border-radius:4px; }
+  .an-barra i { position:absolute; top:0; bottom:0; border-radius:3px; }
+  .an-barra .eje { position:absolute; top:-2px; bottom:-2px; left:50%; width:1px; background:#cbd5e1; }
+  .an-val { font-size:.8rem; font-weight:700; text-align:right; font-variant-numeric:tabular-nums;
+            white-space:nowrap; }
+  .an-lista { list-style:none; }
+  .an-lista li { display:flex; justify-content:space-between; gap:10px; padding:6px 0;
+                 border-bottom:1px solid var(--border); font-size:.8rem; }
+  .an-lista li:last-child { border-bottom:0; }
+  .an-lista .n { color:var(--muted); font-size:.72rem; }
+  .consejo { display:flex; gap:11px; padding:12px 0; border-bottom:1px solid var(--border); }
+  .consejo:last-child { border-bottom:0; }
+  .consejo .ico { flex:none; width:26px; height:26px; border-radius:7px; display:flex;
+                  align-items:center; justify-content:center; font-size:.85rem; }
+  .consejo h4 { font-size:.85rem; margin-bottom:3px; }
+  .consejo p { font-size:.79rem; color:var(--muted); line-height:1.45; }
+  .consejo b { color:var(--text); }
+
+  /* Barra de busqueda y orden sobre las tablas */
+  .tbar { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+  .buscar, .orden { font-size:.82rem; padding:8px 10px; border:1px solid var(--border);
+                    border-radius:8px; background:#fff; color:var(--text); font-family:inherit; }
+  .buscar { flex:1 1 220px; min-width:0; }
+  .buscar:focus, .orden:focus { outline:2px solid var(--blue); outline-offset:-1px; }
+  .orden { cursor:pointer; }
+  .vermas { text-align:center; margin-top:10px; }
+  .vermas button { font-size:.78rem; padding:7px 16px; border:1px solid var(--border);
+                   border-radius:99px; background:#fff; color:var(--navy); cursor:pointer; font-weight:600; }
+
+  table { width:100%; border-collapse:collapse; font-size:.79rem; }
+  thead th { background:var(--navy); color:#fff; padding:8px 9px; text-align:left; font-size:.7rem; text-transform:uppercase; }
+  tbody tr:nth-child(even){ background:#f8fafc; }
+  tbody td { padding:7px 9px; border-bottom:1px solid var(--border); }
+  .badge { display:inline-block; padding:2px 7px; border-radius:99px; font-size:.66rem; font-weight:600; }
+  .b-cuotas{ background:#ede9fe; color:#5b21b6; } .b-contado{ background:#d1fae5; color:#065f46; }
+  .b-nueva{ background:#fef3c7; color:#92400e; } .b-activa{ background:#d1fae5; color:#065f46; }
+  .tag-cat { display:inline-block; padding:1px 6px; border-radius:4px; background:#e0f2fe; color:#0369a1; font-size:.67rem; }
+  .num { text-align:right; font-variant-numeric:tabular-nums; }
+  .vacio { color:var(--muted); text-align:center; padding:26px; font-size:.85rem; }
+
+  #login { max-width:360px; margin:56px auto; padding:26px; background:var(--card); border-radius:14px; box-shadow:var(--shadow-md); }
+  #login h2 { color:var(--navy); font-size:1.3rem; margin-bottom:6px; }
+  #login p { color:var(--muted); margin-bottom:14px; }
+  #login input { width:100%; padding:11px; font-size:16px; border:1px solid #cbd5e1; border-radius:8px; }
+  #login button { width:100%; margin-top:10px; padding:11px; font-size:16px; background:var(--navy); color:#fff; border:0; border-radius:8px; cursor:pointer; }
+  #err { color:var(--red); min-height:20px; margin-top:8px; font-size:.85rem; }
+</style>
+</head>
+<body>
+
+<div id="login">
+  <h2>&#128200; Finanzas Familiares</h2>
+  <p>Ingresa tu frase secreta para ver tus datos.</p>
+  <input id="frase" type="password" placeholder="Frase secreta" autocomplete="current-password">
+  <button id="btn">Entrar</button>
+  <p id="err"></p>
+</div>
+
+<div id="app" style="display:none">
+  <header>
+    <h1>&#128200; Finanzas Familiares</h1>
+    <div class="sub"><span id="titular"></span><span id="frescura"></span></div>
+  </header>
+  <div class="tabs">
+    <button class="tab on" id="tab-rt">Mes en curso</button>
+    <button class="tab" id="tab-of">Cierre mensual</button>
+    <button class="tab" id="tab-an">Análisis</button>
+  </div>
+
+  <!-- ===================== VISTA 1: MES EN CURSO ===================== -->
+  <main id="vista-rt">
+    <div class="aviso">Datos <b>provisionales</b> desde las notificaciones del banco (al día). Los montos definitivos se confirman en el estado de cuenta.</div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card amber">
+        <div class="kpi-label">Gasto del mes al día</div>
+        <div class="kpi-value" id="rt-gasto">&mdash;</div>
+        <div class="kpi-sub" id="rt-gasto-sub">&mdash;</div>
+      </div>
+      <div class="kpi-card" id="rt-card-tend">
+        <div class="kpi-label">Ritmo vs esperado</div>
+        <div class="kpi-value" id="rt-tend">&mdash;</div>
+        <div class="kpi-sub" id="rt-tend-sub">&mdash;</div>
+      </div>
+      <div class="kpi-card teal">
+        <div class="kpi-label">Contado TC</div>
+        <div class="kpi-value" id="rt-contado">&mdash;</div>
+        <div class="kpi-sub">crédito en 1 cuota</div>
+      </div>
+      <div class="kpi-card purple">
+        <div class="kpi-label">En cuotas (crédito)</div>
+        <div class="kpi-value" id="rt-cuotas">&mdash;</div>
+        <div class="kpi-sub">monto total comprado</div>
+      </div>
+      <div class="kpi-card" style="border-color:#0891b2">
+        <div class="kpi-label">Contado Débito</div>
+        <div class="kpi-value" id="rt-debito">&mdash;</div>
+        <div class="kpi-sub">sale de la cuenta al instante</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-label">Transferencias</div>
+        <div class="kpi-value" id="rt-transf">&mdash;</div>
+        <div class="kpi-sub">enviadas a terceros</div>
+      </div>
+    </div>
+
+    <div class="filtros">
+      <div class="fgrupo">
+        <span class="lbl">Mes</span>
+        <div class="fchips" id="rt-chips-mes"></div>
+      </div>
+      <div class="fgrupo">
+        <span class="lbl">Origen de Trx</span>
+        <div class="fchips">
+          <button class="chip on" data-f="rt-origen" data-v="todos">Todos</button>
+          <button class="chip" data-f="rt-origen" data-v="Credito">Crédito</button>
+          <button class="chip" data-f="rt-origen" data-v="Debito">Débito</button>
+          <button class="chip" data-f="rt-origen" data-v="Transferencia">Transferencia</button>
+        </div>
+      </div>
+      <div class="fgrupo">
+        <span class="lbl">Tipo</span>
+        <div class="fchips">
+          <button class="chip on" data-f="rt-tipo" data-v="todos">Todos</button>
+          <button class="chip" data-f="rt-tipo" data-v="contado">Contado (TC + déb.)</button>
+          <button class="chip" data-f="rt-tipo" data-v="contado_tc">Contado TC</button>
+          <button class="chip" data-f="rt-tipo" data-v="contado_deb">Contado Débito</button>
+          <button class="chip" data-f="rt-tipo" data-v="cuotas">En cuotas</button>
+        </div>
+      </div>
+      <div class="fgrupo">
+        <span class="lbl">Tarjeta</span>
+        <div class="fchips" id="rt-chips-tarjeta"></div>
+      </div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="card">
+        <div class="card-title">Cómo se pagó</div>
+        <div class="chart-wrap-sm"><canvas id="chRtTipo"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Gasto por categoría del mes</div>
+        <div class="chart-wrap-sm"><canvas id="chRtCat"></canvas></div>
+      </div>
+    </div>
+
+    <div class="card-full">
+      <div class="card-title">Tendencia mensual por origen <span id="rt-tend-nota" style="color:var(--muted);font-weight:400;text-transform:none"></span></div>
+      <div class="chart-wrap"><canvas id="chRtTendencia"></canvas></div>
+    </div>
+
+    <div class="card-full">
+      <div class="card-title">Evolución por categoría <span style="color:var(--muted);font-weight:400;text-transform:none">· top 6 + otros</span></div>
+      <div class="chart-wrap"><canvas id="chRtCatMes"></canvas></div>
+    </div>
+
+    <div class="card-full">
+      <div class="card-title">Detalle de movimientos <span id="rt-n" style="color:var(--muted);font-weight:400"></span></div>
+      <div class="tbar">
+        <input id="rt-buscar" class="buscar" type="search" placeholder="Buscar comercio o categoría…" autocomplete="off">
+        <select id="rt-orden" class="orden">
+          <option value="fecha">Más recientes primero</option>
+          <option value="mayor">Mayor monto primero</option>
+          <option value="menor">Menor monto primero</option>
+        </select>
+        <select id="rt-desde" class="orden" title="Desde"></select>
+        <select id="rt-hasta" class="orden" title="Hasta"></select>
+        <select id="rt-tope" class="orden">
+          <option value="50">50 filas</option>
+          <option value="200">200 filas</option>
+          <option value="0">Todos</option>
+        </select>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr>
+            <th>Fecha</th><th>Comercio</th><th>Categoría</th><th>Medio</th>
+            <th>Tarjeta</th><th>Tipo</th><th style="text-align:right">Monto</th>
+          </tr></thead>
+          <tbody id="rt-feed"></tbody>
+        </table>
+      </div>
+      <div id="rt-mas" class="vermas"></div>
+    </div>
+  </main>
+
+  <!-- ===================== VISTA 2: CIERRE MENSUAL ===================== -->
+  <main id="vista-of" style="display:none">
+    <div class="aviso ofi">Datos <b>oficiales</b> del banco (estado de cuenta y cartola). Se actualizan una vez al mes.</div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card purple">
+        <div class="kpi-label">Cuotas comprometidas a futuro</div>
+        <div class="kpi-value" id="kpi-comprometido">&mdash;</div>
+        <div class="kpi-sub" id="kpi-n-cuotas">&mdash;</div>
+      </div>
+      <div class="kpi-card blue">
+        <div class="kpi-label">Cuotas a pagar próximo mes</div>
+        <div class="kpi-value" id="kpi-cuota-prox">&mdash;</div>
+        <div class="kpi-sub">según el banco</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-label">Saldo inicial del período</div>
+        <div class="kpi-value" id="kpi-saldo-ini">&mdash;</div>
+        <div class="kpi-sub">cuenta corriente</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-label">Total ingresos del período</div>
+        <div class="kpi-value" id="kpi-ingresos">&mdash;</div>
+        <div class="kpi-sub">abonos cuenta corriente</div>
+      </div>
+      <div class="kpi-card red">
+        <div class="kpi-label">Total gastos del período</div>
+        <div class="kpi-value" id="kpi-gastos">&mdash;</div>
+        <div class="kpi-sub">egresos cuenta corriente</div>
+      </div>
+      <div class="kpi-card" id="card-proy">
+        <div class="kpi-label">Saldo proyectado a fin de mes</div>
+        <div class="kpi-value" id="kpi-saldo-proy">&mdash;</div>
+        <div class="kpi-sub">estimado por tendencia</div>
+      </div>
+    </div>
+
+    <div class="filtros">
+      <div class="fgrupo">
+        <span class="lbl">Mes</span>
+        <div class="fchips" id="of-chips-mes"></div>
+      </div>
+      <div class="fgrupo">
+        <span class="lbl">Tipo</span>
+        <div class="fchips">
+          <button class="chip on" data-f="of-tipo" data-v="todos">Todos</button>
+          <button class="chip" data-f="of-tipo" data-v="contado">Contado</button>
+          <button class="chip" data-f="of-tipo" data-v="cuotas">En cuotas</button>
+        </div>
+      </div>
+      <div class="fgrupo">
+        <span class="lbl">Tarjeta</span>
+        <div class="fchips" id="of-chips-tarjeta"></div>
+      </div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="card">
+        <div class="card-title">Contado vs Cuotas (tarjeta)</div>
+        <div class="chart-wrap-sm"><canvas id="chOfTipo"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Gastos TC por categoría</div>
+        <div class="chart-wrap-sm"><canvas id="chOfCat"></canvas></div>
+      </div>
+    </div>
+
+    <div class="card-full">
+      <div class="card-title">Evolución por categoría <span style="color:var(--muted);font-weight:400;text-transform:none">· top 6 + otros (tarjeta)</span></div>
+      <div class="chart-wrap"><canvas id="chOfCatMes"></canvas></div>
+    </div>
+
+    <div class="card-full">
+      <div class="card-title">Saldo de la cuenta corriente al cierre de cada mes</div>
+      <p class="an-nota" id="of-saldo-nota"></p>
+      <div class="chart-wrap"><canvas id="chartSaldo"></canvas></div>
+    </div>
+
+    <div class="card-full">
+      <div class="card-title">Evolución mensual cuenta corriente</div>
+      <div class="chart-wrap"><canvas id="chartCC"></canvas></div>
+    </div>
+
+    <div class="card-full">
+      <div class="card-title">Compromisos de cuotas &mdash; próximos meses</div>
+      <div class="chart-wrap"><canvas id="chartProy"></canvas></div>
+    </div>
+
+    <div class="card-full">
+      <div class="card-title">Detalle de movimientos <span id="of-n" style="color:var(--muted);font-weight:400"></span></div>
+      <div class="tbar">
+        <input id="of-buscar" class="buscar" type="search" placeholder="Buscar comercio o categoría…" autocomplete="off">
+        <select id="of-orden" class="orden">
+          <option value="fecha">Más recientes primero</option>
+          <option value="mayor">Mayor monto primero</option>
+          <option value="menor">Menor monto primero</option>
+        </select>
+        <select id="of-desde" class="orden" title="Desde"></select>
+        <select id="of-hasta" class="orden" title="Hasta"></select>
+        <select id="of-tope" class="orden">
+          <option value="50">50 filas</option>
+          <option value="200">200 filas</option>
+          <option value="0">Todos</option>
+        </select>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr>
+            <th>Fecha</th><th>Comercio</th><th>Categoría</th><th>Tarjeta</th>
+            <th>Tipo</th><th>Cuota</th><th style="text-align:right">Cargo del mes</th>
+          </tr></thead>
+          <tbody id="of-movs"></tbody>
+        </table>
+      </div>
+      <div id="of-mas" class="vermas"></div>
+    </div>
+
+    <div class="card-full">
+      <div class="card-title">Detalle de cuotas pendientes</div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr>
+            <th>Comercio</th><th>Categoría</th><th>Estado</th><th>Cuota</th><th>Rest.</th>
+            <th style="text-align:right">Cuota/Mes</th><th style="text-align:right">Monto Restante</th><th>Próxima</th>
+          </tr></thead>
+          <tbody id="tablaCuotasBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===================== VISTA 3: ANÁLISIS ===================== -->
+  <main id="vista-an" style="display:none">
+    <div class="filtros">
+      <div class="fgrupo">
+        <span class="lbl">Qué analizar</span>
+        <div class="fchips">
+          <button class="chip on" data-f="an-modo" data-v="curso">Mes en curso vs tendencia</button>
+          <button class="chip" data-f="an-modo" data-v="cerrado" id="an-chip-cerrado">Cierre del período anterior</button>
+        </div>
+      </div>
+    </div>
+    <div class="aviso" id="an-aviso">Lectura automática de tus últimos 6 meses. Compara el mes en curso contra
+      tu propio promedio, no contra un presupuesto teórico.</div>
+
+    <div class="card-full" id="an-veredicto-card">
+      <div class="an-hero">
+        <div class="an-hero-txt">
+          <div class="kpi-label" id="an-kpi-label">Ritmo del mes</div>
+          <div class="an-hero-num" id="an-veredicto">&mdash;</div>
+          <div class="an-hero-sub" id="an-veredicto-sub">&mdash;</div>
+        </div>
+        <div class="an-hero-chart"><canvas id="chAnRitmo"></canvas></div>
+      </div>
+    </div>
+
+    <div class="card-full">
+      <div class="card-title">Tendencia por gran categoría
+        <span style="color:var(--muted);font-weight:400;text-transform:none">· 6 meses</span></div>
+      <p class="an-nota">Las ~39 categorías agrupadas en bloques, para ver el movimiento de fondo
+        sin perderse en el detalle.</p>
+      <div class="chart-wrap"><canvas id="chAnGrupos"></canvas></div>
+    </div>
+
+    <div class="card-full">
+      <div class="card-title">Dónde se está yendo la diferencia</div>
+      <p class="an-nota">Gasto del mes en curso contra tu promedio de los meses anteriores,
+        ajustado al día <span id="an-dia">—</span>. En rojo lo que va por sobre tu costumbre.</p>
+      <div id="an-desvios"></div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="card">
+        <div class="card-title">Gastos hormiga</div>
+        <p class="an-nota">Compras chicas y frecuentes. Suman más de lo que parecen.</p>
+        <div id="an-hormiga"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Comercios que más te cuestan</div>
+        <p class="an-nota">Los 6 con mayor gasto acumulado en el mes.</p>
+        <div id="an-comercios"></div>
+      </div>
+    </div>
+
+    <div class="card-full">
+      <div class="card-title">Qué haría yo con estos números</div>
+      <div id="an-consejos"></div>
+    </div>
+  </main>
+</div>
+
+<script>
+const ITER = 200000;
+const clp  = n => "$" + Math.round(n || 0).toLocaleString("es-CL");
+const clpN = n => (n === null || n === undefined) ? "Sin datos" : clp(n);
+const COLORS = ["#2563eb","#10b981","#f59e0b","#ef4444","#7c3aed","#06b6d4","#f97316","#84cc16","#ec4899","#6366f1"];
+// Paleta categorica de 10 slots, validada para daltonismo (ΔE >= 8 entre pares
+// contiguos). El ORDEN importa: café y rojo se parecen bajo protanopia, por eso
+// van separados en la secuencia. No agregar un slot 11 sin volver a validar.
+// El orden tambien fija el color de cada categoria, nunca su puesto en el ranking.
+const PALETA = ["#2a78d6","#a0522d","#1baf7a","#eda100","#e87ba4",
+                "#008300","#4a3aa7","#e34948","#00a0b0","#eb6834"];
+const N_CATS = 10;
+// Grandes categorías: orden fijo (el backend las asigna en `grupo`). El orden
+// define el color, así el bloque conserva su tono entre vistas y entre modos.
+const GRUPOS = ["Alimentación", "Salud", "Transporte", "Hogar y cuentas",
+                "Familia y educación", "Ocio y compras", "Transferencias"];
+const GRIS_RESTO = "#9ca3af";     // el cajon "resto" es recesivo a proposito
+const RESTO = " resto";      // clave interna, no colisiona con una categoria real
+let TOP_CATS = [];                // top 6 del periodo, fijado al cargar los datos
+let TOP_CATS_OF = [];             // idem para la vista oficial
+let DATA = null;
+const charts = {};
+const filtros = { "rt-mes":"", "rt-origen":"todos", "rt-tipo":"todos", "rt-tarjeta":"todas",
+                  "of-mes":"todos", "of-tipo":"todos", "of-tarjeta":"todas",
+                  "an-modo":"curso" };
+const COL_MEDIO = { Credito:"#2563eb", Debito:"#0891b2", Transferencia:"#f59e0b" };
+const NOM_MEDIO = { Credito:"Crédito", Debito:"Débito", Transferencia:"Transferencias" };
+const MES_ABR = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+const mesLabel = k => MES_ABR[parseInt(k.slice(5,7),10) - 1] + " " + k.slice(2,4);
+
+// Series apiladas por mes. `clave(m)` define la serie.
+// `topFijo` es la lista de series con color propio, calculada UNA vez sobre el
+// total del periodo: el color sigue a la categoria, no a su posicion en el
+// ranking, asi al filtrar no se repintan las que quedan.
+// Todo lo que no esta en esa lista cae en un cajon gris rotulado con su nombre
+// real ("Otras N categorias"), para no confundirlo con la categoria "Otros".
+function apilarPorMes(rows, meses, clave, topFijo, colores) {
+  const fijas = topFijo || [];
+  const agg = {}, vistas = new Set();
+  rows.forEach(m => {
+    const k0 = clave(m);
+    const k = fijas.includes(k0) ? k0 : RESTO;
+    if (k === RESTO) vistas.add(k0);
+    agg[m.mes + "|" + k] = (agg[m.mes + "|" + k] || 0) + m.monto;
+  });
+  const series = fijas.filter(k => meses.some(mm => agg[mm + "|" + k]));
+  if (vistas.size) series.push(RESTO);
+  return series.map((k, i) => ({
+    // Si al cajón "resto" cae una sola serie, se la nombra: decir
+    // "Otras 1 categorías" es peor que decir cómo se llama.
+    label: k !== RESTO ? k
+           : vistas.size === 1 ? [...vistas][0]
+           : "Otras " + vistas.size + " categorías",
+    data: meses.map(mm => agg[mm + "|" + k] || 0),
+    backgroundColor: k === RESTO ? GRIS_RESTO
+                     : (colores && colores[k]) || PALETA[fijas.indexOf(k) % PALETA.length],
+    borderColor: "#fff", borderWidth: 2, borderRadius: 3
+  }));
+}
+
+// Las 6 categorias mas grandes del periodo completo (sin filtros). Se calcula
+// una sola vez al cargar los datos y fija el color de cada una.
+function topCategorias(rows, n) {
+  const tot = {};
+  rows.forEach(m => { tot[m.cat || "Otros"] = (tot[m.cat || "Otros"] || 0) + m.monto; });
+  return Object.keys(tot).sort((a,b) => tot[b] - tot[a]).slice(0, n);
+}
+
+function chartApilado(id, labels, datasets) {
+  chart(id, {
+    type:"bar",
+    data:{ labels, datasets },
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{position:"top", labels:{font:{size:11}, boxWidth:12}},
+        tooltip:{ callbacks:{ label:c => " " + c.dataset.label + ": " + clp(c.raw),
+          footer:it => "Total: " + clp(it.reduce((a,x) => a + x.raw, 0)) } } },
+      scales:{ x:{ stacked:true, grid:{display:false} }, y:Object.assign({stacked:true}, ejeY) } }
+  });
+}
+
+function chart(id, cfg) {
+  if (charts[id]) charts[id].destroy();
+  charts[id] = new Chart(document.getElementById(id), cfg);
+}
+const ejeY = { ticks:{ callback:v => "$"+(v/1e6>=1?(v/1e6).toFixed(1)+"M":v/1e3>=1?(v/1e3).toFixed(0)+"K":v) } };
+
+// ── Descifrado (mismo contrato que cripto.py) ──────────────────────
+async function descifrar(b64, frase) {
+  const raw = Uint8Array.from(atob(b64.trim()), c => c.charCodeAt(0));
+  const salt = raw.slice(0,16), nonce = raw.slice(16,28), ct = raw.slice(28);
+  const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(frase), "PBKDF2", false, ["deriveKey"]);
+  const key = await crypto.subtle.deriveKey({name:"PBKDF2", salt, iterations:ITER, hash:"SHA-256"},
+    base, {name:"AES-GCM", length:256}, false, ["decrypt"]);
+  return new TextDecoder().decode(await crypto.subtle.decrypt({name:"AES-GCM", iv:nonce}, key, ct));
+}
+
+// Pinta el dashboard con los datos ya en claro (vienen del data.enc descifrado
+// o embebidos, cuando este mismo archivo se genera como copia local en el PC).
+function mostrar(datos) {
+  DATA = datos;
+  document.getElementById("login").style.display = "none";
+  document.getElementById("app").style.display = "block";
+  // Frescura de los DATOS, no del archivo. El tablero se regenera aunque la
+  // descarga de correos falle, asi que "actualizado <hoy>" podia mostrarse
+  // sobre datos de hace dias. Se muestra hasta cuando llegan los movimientos y
+  // se avisa fuerte si hay atraso.
+  (function () {
+    const el = document.getElementById("frescura");
+    const atraso = DATA.dias_atraso;
+    // El demo publicado queda congelado en su fecha de publicacion. Mostrarle
+    // "sin movimientos nuevos hace 60 dias" a alguien que solo viene a mirar el
+    // producto no informa nada: se rotula como demostracion y punto.
+    if (DATA.demo) {
+      el.textContent = "Datos de demostración · ningún movimiento es real";
+      return;
+    }
+    if (!DATA.datos_hasta) { el.textContent = "generado " + DATA.generado_en; return; }
+    el.textContent = "datos al " + DATA.datos_hasta + " · generado " + DATA.generado_en;
+    if (atraso !== null && atraso >= 2) {
+      const av = document.createElement("span");
+      av.textContent = " ⚠ sin movimientos nuevos hace " + atraso + " días";
+      av.style.cssText = "background:#e34948;color:#fff;padding:2px 8px;"
+                       + "border-radius:10px;margin-left:8px;font-weight:600";
+      el.appendChild(av);
+    }
+  })();
+  document.getElementById("titular").textContent = DATA.titular ? DATA.titular + " — " : "";
+  // El color de cada categoria se fija aqui, sobre el total del periodo y sin
+  // filtros aplicados, para que no cambie al filtrar.
+  const o = DATA.on_time || {}, ex = DATA.oficial_extra || {};
+  const mesesRT = (o.meses || []).map(x => x.v);
+  TOP_CATS = topCategorias((o.feed || []).filter(m => m.gasto && mesesRT.indexOf(m.mes) >= 0), N_CATS);
+  TOP_CATS_OF = topCategorias(ex.movs || [], N_CATS);
+  initRango("rt", [...new Set((o.feed || []).map(m => m.mes))].filter(Boolean).sort().reverse());
+  initRango("of", [...new Set((ex.movs || []).map(m => m.mes))].filter(Boolean).sort().reverse());
+  initFiltros(); renderRT(); renderOF(); renderAN();
+}
+
+async function entrar(frase) {
+  const resp = await fetch("./data.enc", {cache:"no-store"});
+  if (!resp.ok) throw new Error("sin datos");
+  const datos = JSON.parse(await descifrar(await resp.text(), frase));
+  localStorage.setItem("frase", frase);
+  mostrar(datos);
+}
+
+// ── Filtros ────────────────────────────────────────────────────────
+function chips(cont, fkey, items, activo) {
+  const el = document.getElementById(cont);
+  el.innerHTML = "";
+  items.forEach(it => {
+    const b = document.createElement("button");
+    b.className = "chip" + (it.v === activo ? " on" : "");
+    b.dataset.f = fkey; b.dataset.v = it.v; b.textContent = it.label;
+    el.appendChild(b);
+  });
+  filtros[fkey] = activo;
+}
+
+// Deja marcado un chip por código (mismo efecto que si el usuario lo tocara)
+function marcarChip(fkey, valor) {
+  const chips = document.querySelectorAll('.chip[data-f="' + fkey + '"]');
+  if (!chips.length) return;
+  chips.forEach(c => c.classList.toggle("on", c.dataset.v === valor));
+  filtros[fkey] = valor;
+}
+
+function initFiltros() {
+  const o = DATA.on_time || {}, ex = DATA.oficial_extra || {};
+  // Tarjetas
+  const tarj = (fkey, cont, lista) =>
+    chips(cont, fkey, [{v:"todas", label:"Todas"}].concat(
+      lista.map(t => ({v:t, label:"••" + t}))), "todas");
+  tarj("rt-tarjeta", "rt-chips-tarjeta", Object.keys(o.tarjetas || {}));
+  tarj("of-tarjeta", "of-chips-tarjeta", ex.tarjetas || []);
+  // Meses: el mes en curso por defecto en la vista on-time, todos en la oficial
+  const mesesRT = (o.meses || []);
+  chips("rt-chips-mes", "rt-mes",
+        mesesRT.map(m => ({v:m.v, label:m.label})).concat([{v:"todos", label:"6 meses"}]),
+        (mesesRT.find(m => m.actual) || mesesRT[0] || {v:"todos"}).v);
+  chips("of-chips-mes", "of-mes",
+        [{v:"todos", label:"Todos"}].concat((ex.meses || []).map(m => ({v:m.v, label:m.label}))),
+        "todos");
+}
+
+// Buscar, ordenar, rango de meses y tope de filas
+["rt", "of"].forEach(p => {
+  const re = () => { p === "rt" ? renderRT() : renderOF(); };
+  const mios = [p + "-buscar", p + "-orden", p + "-desde", p + "-hasta", p + "-tope"];
+  document.addEventListener("input",  e => { if (mios.includes(e.target.id)) re(); });
+  document.addEventListener("change", e => { if (mios.includes(e.target.id)) re(); });
+});
+
+// Rango de meses: se arma con los meses que existen en cada vista
+function initRango(pref, meses) {
+  const opts = (primera) =>
+    '<option value="">' + primera + "</option>" +
+    meses.map(m => '<option value="' + m + '">' + mesLabel(m) + "</option>").join("");
+  document.getElementById(pref + "-desde").innerHTML = opts("Desde: todo");
+  document.getElementById(pref + "-hasta").innerHTML = opts("Hasta: hoy");
+}
+
+document.addEventListener("click", e => {
+  const b = e.target.closest(".chip");
+  if (!b) return;
+  const f = b.dataset.f;
+  document.querySelectorAll('.chip[data-f="' + f + '"]').forEach(x => x.classList.remove("on"));
+  b.classList.add("on");
+  filtros[f] = b.dataset.v;
+  if (f.startsWith("rt-")) renderRT();
+  else if (f.startsWith("an-")) renderAN();
+  else renderOF();
+});
+
+// ── VISTA 1: mes en curso ──────────────────────────────────────────
+function renderRT() {
+  const o = DATA.on_time || {};
+  if (!o.disponible) {
+    document.getElementById("rt-feed").innerHTML =
+      '<tr><td colspan="7" class="vacio">Aún no hay notificaciones procesadas.</td></tr>';
+    return;
+  }
+  const tipo = filtros["rt-tipo"], tar = filtros["rt-tarjeta"],
+        org = filtros["rt-origen"], mes = filtros["rt-mes"];
+  const meses = (o.meses || []).map(m => m.v).sort();     // ascendente, para los ejes
+  // hist = todo lo filtrado MENOS el mes (los evolutivos siempre muestran 6 meses)
+  const hist = (o.feed || []).filter(m => {
+    if (!m.gasto) return false;
+    if (meses.indexOf(m.mes) < 0) return false;
+    if (org !== "todos" && m.medio !== org) return false;
+    if (tar !== "todas" && m.tarjeta !== tar) return false;
+    const contadoTC  = m.medio === "Credito" && m.cuotas === 0;
+    const contadoDeb = m.medio === "Debito";
+    if (tipo === "contado"     && !(contadoTC || contadoDeb)) return false;
+    if (tipo === "contado_tc"  && !contadoTC)  return false;
+    if (tipo === "contado_deb" && !contadoDeb) return false;
+    if (tipo === "cuotas" && !(m.medio === "Credito" && m.cuotas > 0)) return false;
+    return true;
+  });
+  const movs = mes === "todos" ? hist : hist.filter(m => m.mes === mes);
+
+  const esActual = mes === o.mes_actual;
+  const total = movs.reduce((a,m) => a + m.monto, 0);
+  document.getElementById("rt-gasto").textContent = clp(total);
+  const filtrado = (tipo !== "todos" || tar !== "todas" || org !== "todos") ? " (filtrado)" : "";
+  document.getElementById("rt-gasto-sub").textContent =
+    (mes === "todos" ? "últimos " + meses.length + " meses"
+     : esActual ? o.mes_label + " · día " + o.dia + " de " + o.dias_mes
+     : "mes cerrado " + (o.meses.find(x => x.v === mes) || {}).label) + filtrado;
+
+  const cardT = document.getElementById("rt-card-tend");
+  if (esActual && o.esperado) {
+    const dif = o.gasto_mes - o.esperado;
+    document.getElementById("rt-tend").textContent = (dif >= 0 ? "+" : "−") + clp(Math.abs(dif)).slice(1);
+    document.getElementById("rt-tend-sub").textContent = "esperado a hoy: " + clp(o.esperado);
+    cardT.style.borderTopColor = dif > 0 ? "var(--red)" : "var(--green)";
+  } else {
+    document.getElementById("rt-tend").textContent = "—";
+    document.getElementById("rt-tend-sub").textContent = esActual
+      ? "necesita un mes completo de historial" : "solo aplica al mes en curso";
+    cardT.style.borderTopColor = "var(--muted)";
+  }
+
+  // Desglose recalculado sobre lo filtrado. El débito también es compra al
+  // contado, pero se muestra aparte del contado con crédito: son bolsillos
+  // distintos aunque los dos se paguen ahora.
+  const cc = {tc:0, deb:0, cuotas:0, transf:0};
+  movs.forEach(m => {
+    if (m.medio === "Credito") { m.cuotas > 0 ? cc.cuotas += m.monto : cc.tc += m.monto; }
+    else if (m.medio === "Debito") cc.deb += m.monto;
+    else if (m.medio === "Transferencia") cc.transf += m.monto;
+  });
+  document.getElementById("rt-contado").textContent = clp(cc.tc);
+  document.getElementById("rt-cuotas").textContent  = clp(cc.cuotas);
+  document.getElementById("rt-debito").textContent  = clp(cc.deb);
+  document.getElementById("rt-transf").textContent  = clp(cc.transf);
+
+  chart("chRtTipo", {
+    type:"doughnut",
+    data:{ labels:["Contado TC","Contado Débito","En cuotas","Transferencias"],
+      datasets:[{ data:[cc.tc, cc.deb, cc.cuotas, cc.transf],
+      backgroundColor:["#2a78d6","#00a0b0","#7c3aed","#eda100"],
+      borderWidth:2, borderColor:"#fff" }] },
+    options:{ responsive:true, maintainAspectRatio:false, cutout:"58%",
+      plugins:{ legend:{position:"bottom", labels:{font:{size:11}}},
+        tooltip:{ callbacks:{
+          label:c => " " + c.label + ": " + clp(c.raw),
+          footer:it => { const t = cc.tc + cc.deb;
+            return it[0].dataIndex <= 1 ? "Contado total: " + clp(t) : ""; } } } } }
+  });
+
+  // Categorías: recalculadas sobre lo filtrado
+  const agg = {};
+  movs.forEach(m => { agg[m.cat] = (agg[m.cat] || 0) + m.monto; });
+  const cats = Object.entries(agg).sort((a,b) => b[1]-a[1]).slice(0, 10);
+  chart("chRtCat", {
+    type:"bar",
+    data:{ labels:cats.map(c=>c[0]), datasets:[{ data:cats.map(c=>c[1]),
+      backgroundColor:"rgba(245,158,11,.8)", borderRadius:4 }] },
+    options:{ indexAxis:"y", responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:c => " " + clp(c.raw) } } },
+      scales:{ x:ejeY, y:{ ticks:{font:{size:10}} } } }
+  });
+
+  // Evolutivos: siempre los 6 meses (respetan los otros filtros, no el de mes)
+  const etiquetas = meses.map(mesLabel);
+  document.getElementById("rt-tend-nota").textContent =
+    meses[meses.length-1] === o.mes_actual ? "· el último mes va en curso" : "";
+  chartApilado("chRtTendencia", etiquetas,
+    apilarPorMes(hist, meses, m => m.medio || "Otro", ["Credito","Debito","Transferencia"], COL_MEDIO)
+      .map(d => Object.assign(d, {label: NOM_MEDIO[d.label] || d.label})));
+  chartApilado("chRtCatMes", etiquetas,
+    apilarPorMes(hist, meses, m => m.cat || "Otros", TOP_CATS));
+
+  pintarTabla({
+    filas: ordenarBuscar(movs, "rt"), cuerpo: "rt-feed", contador: "rt-n",
+    mas: "rt-mas", cols: 7, pref: "rt", todas: (o.feed || []).filter(m => m.gasto),
+    fila: m => {
+      const esCuotas = m.medio === "Credito" && m.cuotas > 0;
+      return "<td>" + m.fecha + (m.hora ? " <span style='color:var(--muted)'>" + m.hora + "</span>" : "") + "</td>" +
+        "<td style='font-weight:600'>" + esc(m.desc) + "</td>" +
+        "<td><span class='tag-cat'>" + esc(m.cat) + "</span></td>" +
+        "<td>" + esc(m.medio) + "</td>" +
+        "<td>" + (m.tarjeta ? "••" + esc(m.tarjeta) : "—") + "</td>" +
+        "<td>" + (m.medio !== "Credito" ? "—" :
+          (esCuotas ? "<span class='badge b-cuotas'>" + m.cuotas + " cuotas</span>"
+                    : "<span class='badge b-contado'>Contado</span>")) + "</td>" +
+        "<td class='num' style='font-weight:600'>" + clp(m.monto) + "</td>";
+    }
+  });
+}
+
+// ── Tablas: búsqueda, orden y "ver más" ────────────────────────────
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c =>
+  ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+// Normaliza para buscar: minúsculas y sin tildes, para que "almacen"
+// encuentre "Almacén" y la coincidencia valga en cualquier parte del texto.
+const norm = s => String(s || "").toLowerCase()
+  .normalize("NFD").replace(/[̀-ͯ]/g, "");
+
+function ordenarBuscar(filas, pref) {
+  const q = norm(document.getElementById(pref + "-buscar").value.trim());
+  const orden = document.getElementById(pref + "-orden").value;
+  const desde = document.getElementById(pref + "-desde").value;
+  const hasta = document.getElementById(pref + "-hasta").value;
+  let out = filas.filter(m =>
+    (!desde || m.mes >= desde) && (!hasta || m.mes <= hasta) &&
+    (!q || norm(m.desc + " " + m.cat).includes(q)));
+  if (orden === "mayor") out.sort((a,b) => b.monto - a.monto);
+  else if (orden === "menor") out.sort((a,b) => a.monto - b.monto);
+  return out;   // "fecha" conserva el orden original (ya viene por fecha desc)
+}
+
+// Si la búsqueda no encuentra nada dentro del rango pero sí fuera, se avisa:
+// es el caso típico de buscar una compra de hace meses con el mes actual puesto.
+function fueraDeRango(todas, mostradas, pref) {
+  const q = norm(document.getElementById(pref + "-buscar").value.trim());
+  if (!q || mostradas.length) return 0;
+  return todas.filter(m => norm(m.desc + " " + m.cat).includes(q)).length;
+}
+
+function pintarTabla({filas, cuerpo, contador, mas, cols, pref, fila, todas}) {
+  const tb = document.getElementById(cuerpo);
+  const total = filas.reduce((a,m) => a + m.monto, 0);
+  // 0 = "Todos": se muestran todas las filas y se navega con el scroll
+  const tope = parseInt(document.getElementById(pref + "-tope").value, 10) || filas.length;
+  document.getElementById(contador).textContent =
+    "(" + filas.length + " · " + clp(total) + ")";
+  const cont = document.getElementById(mas);
+  tb.innerHTML = "";
+  cont.innerHTML = "";
+  if (!filas.length) {
+    const n = fueraDeRango(todas || [], filas, pref);
+    tb.innerHTML = '<tr><td colspan="' + cols + '" class="vacio">' +
+      (n ? "Sin coincidencias en el rango elegido. Hay <b>" + n +
+           "</b> en el resto del historial." : "Sin movimientos con este filtro.") +
+      "</td></tr>";
+    if (n) {
+      cont.innerHTML = "<button>Buscar en todo el historial</button>";
+      cont.firstChild.onclick = () => {
+        document.getElementById(pref + "-desde").value = "";
+        document.getElementById(pref + "-hasta").value = "";
+        // El chip de mes de la vista también acota: hay que abrirlo, si no el
+        // botón "buscar en todo" no encontraría nada y parecería roto.
+        marcarChip(pref + "-mes", "todos");
+        pref === "rt" ? renderRT() : renderOF();
+      };
+    }
+    return;
+  }
+  filas.slice(0, tope).forEach(m => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = fila(m);
+    tb.appendChild(tr);
+  });
+  if (filas.length > tope)
+    cont.innerHTML = '<span style="font-size:.76rem;color:var(--muted)">Mostrando ' + tope +
+                     " de " + filas.length + ' · elige "Todos" para verlas completas</span>';
+}
+
+function render() { renderRT(); renderOF(); }
+
+// ── VISTA 2: cierre mensual ────────────────────────────────────────
+function renderOF() {
+  const k = DATA.kpis, ex = DATA.oficial_extra || {movs:[], tarjetas:[]};
+  document.getElementById("kpi-comprometido").textContent = clp(k.total_comprometido);
+  document.getElementById("kpi-n-cuotas").textContent     = k.n_activas + " activas + " + k.n_nuevas + " nuevas";
+  document.getElementById("kpi-cuota-prox").textContent   = clp(k.cuota_proximo_mes);
+  document.getElementById("kpi-saldo-ini").textContent    = clpN(k.saldo_inicial);
+  document.getElementById("kpi-ingresos").textContent     = clp(k.ingresos_cc);
+  document.getElementById("kpi-gastos").textContent       = clp(k.egresos_cc);
+  document.getElementById("kpi-saldo-proy").textContent   = clpN(k.saldo_proyectado);
+  if (k.saldo_proyectado != null && k.saldo_inicial != null)
+    document.getElementById("card-proy").style.borderTopColor =
+      k.saldo_proyectado >= k.saldo_inicial ? "var(--green)" : "var(--red)";
+
+  const tipo = filtros["of-tipo"], tar = filtros["of-tarjeta"], mes = filtros["of-mes"];
+  const meses = (ex.meses || []).map(m => m.v).sort();
+  const hist = (ex.movs || []).filter(m => {
+    if (tar !== "todas" && m.tarjeta !== tar) return false;
+    if (tipo === "contado" && m.tipo !== "Contado") return false;
+    if (tipo === "cuotas"  && m.tipo !== "Cuotas")  return false;
+    return true;
+  });
+  const movs = mes === "todos" ? hist : hist.filter(m => m.mes === mes);
+  let cont = 0, cuo = 0, agg = {};
+  movs.forEach(m => {
+    if (m.tipo === "Cuotas") cuo += m.monto; else cont += m.monto;
+    agg[m.cat] = (agg[m.cat] || 0) + m.monto;
+  });
+
+  chart("chOfTipo", {
+    type:"doughnut",
+    data:{ labels:["Contado","En cuotas"], datasets:[{ data:[cont, cuo],
+      backgroundColor:["#0891b2","#7c3aed"], borderWidth:2, borderColor:"#fff" }] },
+    options:{ responsive:true, maintainAspectRatio:false, cutout:"58%",
+      plugins:{ legend:{position:"bottom", labels:{font:{size:11}}},
+        tooltip:{ callbacks:{ label:c => " " + c.label + ": " + clp(c.raw) } } } }
+  });
+
+  const cats = Object.entries(agg).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  chart("chOfCat", {
+    type:"bar",
+    data:{ labels:cats.map(c=>c[0]), datasets:[{ data:cats.map(c=>c[1]),
+      backgroundColor:"rgba(37,99,235,.8)", borderRadius:4 }] },
+    options:{ indexAxis:"y", responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:c => " " + clp(c.raw) } } },
+      scales:{ x:ejeY, y:{ ticks:{font:{size:10}} } } }
+  });
+
+  chartApilado("chOfCatMes", meses.map(mesLabel),
+    apilarPorMes(hist.filter(m => meses.indexOf(m.mes) >= 0), meses, m => m.cat || "Otros", TOP_CATS_OF));
+
+  // Saldo al cierre de cada mes. El punto es el último movimiento cargado de
+  // ese mes: si la cartola no llega a fin de mes, el tooltip lo dice.
+  const sal = DATA.cc_saldos || {labels:[], saldos:[], fechas:[]};
+  if (sal.labels.length) {
+    const ult = sal.fechas[sal.fechas.length-1];
+    document.getElementById("of-saldo-nota").textContent =
+      "Saldo que declara el banco al último movimiento de cada mes. Último dato: " + ult + ".";
+    chart("chartSaldo", {
+      type:"line",
+      data:{ labels:sal.labels, datasets:[{
+        label:"Saldo", data:sal.saldos,
+        borderColor:"#2a78d6", backgroundColor:"rgba(42,120,214,.10)",
+        borderWidth:2, fill:true, tension:.25,
+        pointRadius:5, pointHoverRadius:8,
+        pointBackgroundColor:sal.saldos.map(v => v < 0 ? "#e34948" : "#2a78d6"),
+        pointBorderColor:"#fff", pointBorderWidth:2 }] },
+      options:{ responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{display:false},
+          tooltip:{ callbacks:{
+            title:it => sal.labels[it[0].dataIndex] + " · al " + sal.fechas[it[0].dataIndex],
+            label:c => " Saldo: " + clp(c.raw),
+            afterLabel:c => { const i = c.dataIndex; if (!i) return "";
+              const d = sal.saldos[i] - sal.saldos[i-1];
+              return (d >= 0 ? "▲ +" : "▼ −") + clp(Math.abs(d)).slice(1) + " vs mes anterior"; } } } },
+        scales:{ x:{ grid:{display:false} }, y:ejeY } }
+    });
+  }
+
+  if (DATA.cc_mensual.labels.length) {
+    chart("chartCC", {
+      type:"bar",
+      data:{ labels:DATA.cc_mensual.labels, datasets:[
+        { label:"Ingresos", data:DATA.cc_mensual.abonos, backgroundColor:"rgba(16,185,129,.75)", borderRadius:4 },
+        { label:"Egresos",  data:DATA.cc_mensual.cargos, backgroundColor:"rgba(239,68,68,.72)", borderRadius:4 }] },
+      options:{ responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{position:"top"}, tooltip:{ callbacks:{ label:c => " " + c.dataset.label + ": " + clp(c.raw) } } },
+        scales:{ x:{grid:{display:false}}, y:ejeY } }
+    });
+  }
+
+  if (DATA.proyeccion.labels.length) {
+    const pMax = Math.max(...DATA.proyeccion.totales);
+    chart("chartProy", {
+      type:"bar",
+      data:{ labels:DATA.proyeccion.labels, datasets:[{ data:DATA.proyeccion.totales,
+        backgroundColor:DATA.proyeccion.totales.map(v => v===pMax ? "rgba(124,58,237,.85)" : "rgba(37,99,235,.7)"),
+        borderRadius:5 }] },
+      options:{ responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:c => " Cuotas: " + clp(c.raw) } } },
+        scales:{ x:{grid:{display:false}}, y:ejeY } }
+    });
+  }
+
+  pintarTabla({
+    filas: ordenarBuscar(movs, "of"), cuerpo: "of-movs", contador: "of-n",
+    mas: "of-mas", cols: 7, pref: "of", todas: ex.movs || [],
+    fila: m =>
+      "<td>" + m.fecha + "</td>" +
+      "<td style='font-weight:600'>" + esc(m.desc) + "</td>" +
+      "<td><span class='tag-cat'>" + esc(m.cat) + "</span></td>" +
+      "<td>" + (m.tarjeta ? "••" + esc(m.tarjeta) : "—") + "</td>" +
+      "<td>" + (m.tipo === "Cuotas" ? "<span class='badge b-cuotas'>Cuotas</span>"
+                                    : "<span class='badge b-contado'>Contado</span>") + "</td>" +
+      "<td>" + esc(m.cuota || "—") + "</td>" +
+      "<td class='num' style='font-weight:600'>" + clp(m.monto) + "</td>"
+  });
+
+  const tb = document.getElementById("tablaCuotasBody");
+  tb.innerHTML = "";
+  const filas = (DATA.cuotas_tabla || []);
+  if (!filas.length) tb.innerHTML = '<tr><td colspan="8" class="vacio">Sin cuotas pendientes.</td></tr>';
+  filas.forEach(r => {
+    const nueva = r.estado.includes("Nueva");
+    const tr = document.createElement("tr");
+    tr.innerHTML =
+      "<td style='font-weight:600'>" + r.comercio + "</td>" +
+      "<td><span class='tag-cat'>" + r.categoria + "</span></td>" +
+      "<td><span class='badge " + (nueva ? "b-nueva'>★ Nueva" : "b-activa'>Activa") + "</span></td>" +
+      "<td style='text-align:center'>" + r.cuota + "</td>" +
+      "<td style='text-align:center'>" + r.restantes + "</td>" +
+      "<td class='num'>" + clp(r.valor_mes) + "</td>" +
+      "<td class='num' style='font-weight:600;color:var(--navy)'>" + clp(r.restante) + "</td>" +
+      "<td>" + r.proxima + "</td>";
+    tb.appendChild(tr);
+  });
+}
+
+// ── VISTA 3: análisis ──────────────────────────────────────────────
+// Todo se compara contra el propio historial del usuario, prorrateado al día
+// del mes: comparar un mes a medias contra meses completos siempre "aprueba".
+// modo "curso"  : mes en curso, prorrateado al día de hoy
+// modo "cerrado": último mes ya terminado, completo contra los meses anteriores
+function analizar(modo) {
+  const o = DATA.on_time || {};
+  if (!o.disponible || !o.feed) return null;
+  const todos = (o.meses || []).map(m => m.v).sort();
+  const objetivo = modo === "cerrado"
+    ? todos.filter(m => m < o.mes_actual).pop()
+    : o.mes_actual;
+  if (!objetivo) return null;
+  const meses = todos.filter(m => m <= objetivo);
+  const previos = meses.filter(m => m !== objetivo);
+  if (!previos.length) return null;
+
+  const gasto = o.feed.filter(m => m.gasto);
+  const delMes = gasto.filter(m => m.mes === objetivo);
+  // El mes cerrado se compara completo; el mes en curso, prorrateado al día
+  const prop = modo === "cerrado" ? 1 : o.dia / o.dias_mes;
+
+  // Promedio mensual por categoría en los meses anteriores
+  const porCat = {}, catsPrev = {};
+  delMes.forEach(m => { porCat[m.cat] = (porCat[m.cat] || 0) + m.monto; });
+  gasto.filter(m => previos.includes(m.mes))
+       .forEach(m => { catsPrev[m.cat] = (catsPrev[m.cat] || 0) + m.monto; });
+
+  const desvios = Object.keys(Object.assign({}, porCat, catsPrev)).map(cat => {
+    const real = porCat[cat] || 0;
+    const esperado = (catsPrev[cat] || 0) / previos.length * prop;
+    return {cat, real, esperado, dif: real - esperado};
+  }).filter(d => Math.abs(d.dif) >= 5000)
+    .sort((a,b) => b.dif - a.dif);
+
+  // Gastos hormiga: comercios con >=4 compras chicas en el mes
+  const porCom = {};
+  delMes.forEach(m => {
+    const k = m.desc.toUpperCase().slice(0, 20);
+    (porCom[k] = porCom[k] || {desc: m.desc, n: 0, monto: 0, cat: m.cat});
+    porCom[k].n++; porCom[k].monto += m.monto;
+  });
+  const comercios = Object.values(porCom);
+  const hormiga = comercios.filter(c => c.n >= 4 && c.monto / c.n <= 15000)
+                           .sort((a,b) => b.monto - a.monto).slice(0, 6);
+  const top = comercios.sort((a,b) => b.monto - a.monto).slice(0, 6);
+
+  const totalPrev = previos.reduce((a,mm) =>
+    a + gasto.filter(m => m.mes === mm).reduce((s,m) => s + m.monto, 0), 0) / previos.length;
+  const esperadoHoy = totalPrev * prop;
+  const real = delMes.reduce((a,m) => a + m.monto, 0);
+
+  // Flujo de caja del mes objetivo (cuenta corriente), si la cartola ya llegó
+  const cc = DATA.cc_mensual || {labels:[], abonos:[], cargos:[]};
+  const iCC = cc.labels.indexOf(mesLabel(objetivo));
+  const flujo = iCC >= 0
+    ? {ingresos: cc.abonos[iCC], egresos: cc.cargos[iCC],
+       neto: cc.abonos[iCC] - cc.cargos[iCC]}
+    : null;
+
+  return {modo, objetivo, meses, previos, real, esperadoHoy, promedioMes: totalPrev,
+          proyectado: prop > 0 ? real / prop : 0, desvios, hormiga, top, flujo,
+          nMovs: delMes.length,
+          serie: meses.map(mm => gasto.filter(m => m.mes === mm)
+                                      .reduce((s,m) => s + m.monto, 0))};
+}
+
+function renderAN() {
+  const modo = filtros["an-modo"] || "curso";
+  const a = analizar(modo);
+  const cont = document.getElementById("an-desvios");
+  const o = DATA.on_time || {};
+  // Rotula el chip con el mes real que se va a analizar
+  const cerrado = ((o.meses || []).map(m => m.v).sort().filter(m => m < o.mes_actual).pop());
+  if (cerrado)
+    document.getElementById("an-chip-cerrado").textContent = "Cierre de " + mesLabel(cerrado);
+  if (!a) {
+    cont.innerHTML = '<p class="vacio">Se necesita al menos un mes anterior completo para comparar.</p>';
+    return;
+  }
+  const esCerrado = modo === "cerrado";
+  document.getElementById("an-aviso").innerHTML = esCerrado
+    ? "Mes <b>" + mesLabel(a.objetivo) + " ya cerrado</b>, completo, contra el promedio de los " +
+      a.previos.length + " meses anteriores."
+    : "Mes en curso contra tu propio promedio, prorrateado al día que llevamos. " +
+      "No se compara contra un presupuesto teórico.";
+  const dif = a.real - a.esperadoHoy;
+  const pct = a.esperadoHoy ? dif / a.esperadoHoy * 100 : 0;
+  const alto = pct > 10, bajo = pct < -10;
+
+  document.getElementById("an-veredicto").textContent =
+    (dif >= 0 ? "+" : "−") + clp(Math.abs(dif)).slice(1);
+  document.getElementById("an-veredicto").style.color =
+    alto ? "var(--red)" : bajo ? "var(--green)" : "var(--text)";
+  // Con pocos días corridos una sola compra grande distorsiona la proyección:
+  // se dice, en vez de presentarla como si fuera un pronóstico firme.
+  const temprano = !esCerrado && o.dia <= 7;
+  document.getElementById("an-veredicto-sub").innerHTML = esCerrado
+    ? (alto ? "<b>Cerraste sobre</b> tu promedio" : bajo ? "<b>Cerraste bajo</b> tu promedio"
+            : "Cerraste <b>en línea</b> con tu promedio") +
+      " (" + (pct >= 0 ? "+" : "") + pct.toFixed(0) + "%). Gastaste <b>" + clp(a.real) +
+      "</b> en " + a.nMovs + " movimientos, contra un promedio de " + clp(a.promedioMes) + "." +
+      (a.flujo ? " En la cuenta corriente el flujo del mes fue <b style='color:" +
+        (a.flujo.neto < 0 ? "var(--red)" : "var(--green)") + "'>" +
+        (a.flujo.neto >= 0 ? "+" : "−") + clp(Math.abs(a.flujo.neto)).slice(1) + "</b> (" +
+        clp(a.flujo.ingresos) + " de ingresos contra " + clp(a.flujo.egresos) + " de egresos)." : "")
+    : (alto ? "Vas <b>sobre</b> tu ritmo habitual" : bajo ? "Vas <b>bajo</b> tu ritmo habitual"
+            : "Vas <b>en línea</b> con tu ritmo habitual") +
+      " (" + (pct >= 0 ? "+" : "") + pct.toFixed(0) + "%). " +
+      (temprano
+        ? "Van solo " + o.dia + " días, así que la proyección a fin de mes (" + clp(a.proyectado) +
+          ") todavía es ruidosa: una compra grande la mueve entera. Tu promedio mensual es " +
+          clp(a.promedioMes) + "."
+        : "A este paso cierras el mes en <b>" + clp(a.proyectado) +
+          "</b>, contra un promedio de " + clp(a.promedioMes) + ".");
+  document.getElementById("an-veredicto-card").style.borderTop =
+    "4px solid " + (alto ? "var(--red)" : bajo ? "var(--green)" : "var(--blue)");
+  document.getElementById("an-kpi-label").textContent =
+    esCerrado ? "Cierre de " + mesLabel(a.objetivo) : "Ritmo del mes";
+  document.getElementById("an-dia").textContent =
+    esCerrado ? "mes completo" : o.dia + " de " + o.dias_mes;
+
+  // Chart.js entra en bucle si mide un contenedor con display:none. Los gráficos
+  // se dibujan solo con la vista visible; el click de la pestaña vuelve a llamar.
+  if (document.getElementById("vista-an").style.display === "none") return;
+
+  // Tendencia por gran categoría: bloques fijos, mismo color en ambos modos
+  const gastoTodo = (o.feed || []).filter(m => m.gasto && a.meses.includes(m.mes));
+  chartApilado("chAnGrupos", a.meses.map(mesLabel),
+    apilarPorMes(gastoTodo, a.meses, m => m.grupo || "Otros", GRUPOS));
+
+  // Sparkline del gasto mensual, con el mes en curso destacado
+  chart("chAnRitmo", {
+    type:"bar",
+    data:{ labels:a.meses.map(mesLabel), datasets:[{
+      data:a.serie,
+      backgroundColor:a.meses.map(m => m === a.objetivo ? "#2a78d6" : "#dbe3ea"),
+      borderRadius:3 }] },
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false},
+        tooltip:{ callbacks:{ label:c => " " + clp(c.raw) } } },
+      scales:{ x:{ grid:{display:false}, ticks:{font:{size:10}} },
+               y:{ display:false } } }
+  });
+
+  // Desvíos por categoría: barra divergente respecto del promedio
+  const tope = Math.max(...a.desvios.map(d => Math.abs(d.dif)), 1);
+  cont.innerHTML = a.desvios.length ? "" :
+    '<p class="vacio">Ninguna categoría se desvía más de $5.000 de tu promedio.</p>';
+  a.desvios.slice(0, 8).forEach(d => {
+    const w = Math.abs(d.dif) / tope * 50;          // 50% = media barra
+    const sobre = d.dif > 0;
+    const div = document.createElement("div");
+    div.className = "an-row";
+    div.innerHTML =
+      "<div class='an-cat'>" + esc(d.cat) +
+        "<small>" + clp(d.real) + " vs " + clp(d.esperado) + " habitual</small></div>" +
+      "<div class='an-barra'><span class='eje'></span><i style='" +
+        (sobre ? "left:50%;width:" + w + "%;background:#e34948"
+               : "right:50%;width:" + w + "%;background:#1baf7a") + "'></i></div>" +
+      "<div class='an-val' style='color:" + (sobre ? "var(--red)" : "var(--green)") + "'>" +
+        (sobre ? "+" : "−") + clp(Math.abs(d.dif)).slice(1) + "</div>";
+    cont.appendChild(div);
+  });
+
+  const lista = (id, items, vacio) => {
+    const el = document.getElementById(id);
+    if (!items.length) { el.innerHTML = '<p class="vacio">' + vacio + "</p>"; return; }
+    el.innerHTML = "<ul class='an-lista'>" + items.map(c =>
+      "<li><span>" + esc(c.desc.slice(0, 26)) + "<span class='n'> · " + c.n +
+      (c.n === 1 ? " compra" : " compras") + "</span></span>" +
+      "<b>" + clp(c.monto) + "</b></li>").join("") + "</ul>";
+  };
+  lista("an-hormiga", a.hormiga, "Sin compras chicas repetidas este mes. Bien ahí.");
+  lista("an-comercios", a.top, "Aún no hay movimientos este mes.");
+
+  // Consejos: se arman desde los propios números, no son genéricos
+  const c = [];
+  const peor = a.desvios[0];
+  if (peor && peor.dif > 0)
+    c.push(["🎯", "var(--red)", "Ataca primero " + peor.cat,
+      "Es tu mayor desvío: <b>" + clp(peor.dif) + "</b> sobre lo habitual. Volver a tu promedio en esta sola categoría corrige el " +
+      Math.min(100, Math.round(peor.dif / Math.max(dif, 1) * 100)) + "% de la desviación del mes."]);
+  if (a.hormiga.length) {
+    const th = a.hormiga.reduce((s,x) => s + x.monto, 0);
+    const tn = a.hormiga.reduce((s,x) => s + x.n, 0);
+    c.push(["🐜", "var(--amber)", "Las compras chicas suman " + clp(th),
+      tn + " compras de menos de $15.000 en " + a.hormiga.length + " comercios. " +
+      "Individualmente no duelen; juntas son el <b>" + Math.round(th / Math.max(a.real,1) * 100) +
+      "%</b> de tu gasto del mes. Fijar un tope semanal para estas es más fácil que recortar una compra grande."]);
+  }
+  // Consejos de flujo: solo tienen sentido con el mes cerrado y la cartola cargada
+  if (esCerrado && a.flujo) {
+    const f = a.flujo;
+    if (f.neto < 0)
+      c.push(["🔻", "var(--red)", "Cerraste el mes con flujo negativo",
+        "Gastaste <b>" + clp(Math.abs(f.neto)) + "</b> más de lo que ingresó a la cuenta (" +
+        clp(f.egresos) + " contra " + clp(f.ingresos) + "). Un mes puntual se absorbe con saldo; " +
+        "dos seguidos se pagan con línea de crédito, que es la forma más cara de financiarse. " +
+        "El ajuste más directo es la categoría de arriba, no muchos recortes chicos."]);
+    else
+      c.push(["🔺", "var(--green)", "Cerraste el mes con flujo positivo",
+        "Te quedaron <b>" + clp(f.neto) + "</b> sobre lo que gastaste. " +
+        "Ese excedente rinde más en una cuenta aparte que en la corriente: si se queda ahí, " +
+        "tiende a gastarse el mes siguiente sin que lo decidas."]);
+    const pesoTop = a.top.length ? a.top[0].monto / Math.max(a.real, 1) * 100 : 0;
+    if (pesoTop >= 20)
+      c.push(["🏪", "var(--amber)", "Un solo comercio explica el " + pesoTop.toFixed(0) + "% del mes",
+        "<b>" + esc(a.top[0].desc.slice(0,26)) + "</b> concentró " + clp(a.top[0].monto) +
+        " en " + a.top[0].n + (a.top[0].n === 1 ? " compra" : " compras") + ". " +
+        "Cuando el gasto se concentra así, negociar o planificar esa sola relación mueve la aguja " +
+        "más que revisar el resto del mes."]);
+  }
+
+  const k = DATA.kpis || {};
+  if (k.cuota_proximo_mes && k.ingresos_cc) {
+    const carga = k.cuota_proximo_mes / k.ingresos_cc * 100;
+    c.push([carga > 25 ? "⚠️" : "💳", carga > 25 ? "var(--red)" : "var(--blue)",
+      "Tus cuotas comprometen el " + carga.toFixed(0) + "% de tus ingresos",
+      "El próximo mes pagas <b>" + clp(k.cuota_proximo_mes) + "</b> en cuotas ya comprometidas sobre ingresos de " +
+      clp(k.ingresos_cc) + ". " + (carga > 25
+        ? "Sobre 25% es zona de riesgo: cada compra nueva en cuotas reduce tu margen de maniobra. Evita sumar planes nuevos hasta bajar de ahí."
+        : "Está en un rango manejable. El punto a cuidar es no sumar planes largos que estiren el compromiso más allá de 6 meses.")]);
+  }
+  const ahorro = a.desvios.filter(d => d.dif < 0);
+  if (ahorro.length)
+    c.push(["✅", "var(--green)", "Lo que sí está funcionando",
+      "Bajaste en " + ahorro.slice(0,3).map(d => "<b>" + esc(d.cat) + "</b>").join(", ") +
+      ", con " + clp(Math.abs(ahorro.reduce((s,d) => s + d.dif, 0))) +
+      " menos que tu promedio. Eso ya está compensando parte del exceso."]);
+  if (!alto && !bajo && !esCerrado)
+    c.push(["📊", "var(--blue)", "Mes sin sobresaltos",
+      "Vas dentro del 10% de tu comportamiento normal. El mejor uso de este mes es revisar si tu " +
+      "promedio de " + clp(a.promedioMes) + " es el nivel al que <b>quieres</b> gastar, no solo al que sueles."]);
+
+  document.getElementById("an-consejos").innerHTML = c.map(([ico, col, tit, txt]) =>
+    "<div class='consejo'><div class='ico' style='background:" + col + "22;color:" + col + "'>" +
+    ico + "</div><div><h4>" + tit + "</h4><p>" + txt + "</p></div></div>").join("");
+}
+
+// ── Tabs ───────────────────────────────────────────────────────────
+const VISTAS = ["rt", "of", "an"];
+VISTAS.forEach(v => {
+  document.getElementById("tab-" + v).onclick = () => {
+    VISTAS.forEach(x => {
+      document.getElementById("tab-" + x).classList.toggle("on", x === v);
+      document.getElementById("vista-" + x).style.display = x === v ? "block" : "none";
+    });
+    // Chart.js necesita re-medir al mostrarse un contenedor que estaba oculto
+    if (v === "an") renderAN();
+  };
+});
+
+// ── Arranque ───────────────────────────────────────────────────────
+document.getElementById("btn").onclick = () =>
+  entrar(document.getElementById("frase").value).catch(() =>
+    document.getElementById("err").textContent = "Frase incorrecta o sin conexión.");
+document.getElementById("frase").addEventListener("keydown", e => { if (e.key === "Enter") document.getElementById("btn").click(); });
+window.addEventListener("load", () => {
+  // Copia local generada en el PC: los datos vienen embebidos, no hay que pedir frase
+  if (window.__DATOS__) { mostrar(window.__DATOS__); return; }
+  const f = localStorage.getItem("frase");
+  if (f) entrar(f).catch(() => {});
+  if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js").catch(()=>{});
+});
+</script>
+</body>
+</html>
