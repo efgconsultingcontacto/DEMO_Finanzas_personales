@@ -278,9 +278,9 @@
         <div class="kpi-sub" id="kpi-n-cuotas">&mdash;</div>
       </div>
       <div class="kpi-card blue">
-        <div class="kpi-label">Cuotas a pagar próximo mes</div>
+        <div class="kpi-label">Tu próximo pago de cuotas</div>
         <div class="kpi-value" id="kpi-cuota-prox">&mdash;</div>
-        <div class="kpi-sub">según el banco</div>
+        <div class="kpi-sub" id="kpi-cuota-prox-sub">según el banco</div>
       </div>
       <div class="kpi-card amber">
         <div class="kpi-label">Saldo inicial del período</div>
@@ -867,6 +867,11 @@ function renderOF() {
   document.getElementById("kpi-comprometido").textContent = clp(k.total_comprometido);
   document.getElementById("kpi-n-cuotas").textContent     = k.n_activas + " activas + " + k.n_nuevas + " nuevas";
   document.getElementById("kpi-cuota-prox").textContent   = clp(k.cuota_proximo_mes);
+  // Nombrar el mes evita la ambiguedad de "proximo mes": a mitad de agosto la
+  // factura de agosto todavia no se paga, y es esa la que el usuario tiene enfrente.
+  document.getElementById("kpi-cuota-prox-sub").textContent =
+    k.cuota_proximo_mes_label ? "cuotas de " + k.cuota_proximo_mes_label + " · según el banco"
+                              : "según el banco";
   document.getElementById("kpi-saldo-ini").textContent    = clpN(k.saldo_inicial);
   document.getElementById("kpi-ingresos").textContent     = clp(k.ingresos_cc);
   document.getElementById("kpi-gastos").textContent       = clp(k.egresos_cc);
