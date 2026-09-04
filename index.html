@@ -115,8 +115,162 @@
   tbody td { padding:7px 9px; border-bottom:1px solid var(--border); }
   .badge { display:inline-block; padding:2px 7px; border-radius:99px; font-size:.66rem; font-weight:600; }
   .b-cuotas{ background:#ede9fe; color:#5b21b6; } .b-contado{ background:#d1fae5; color:#065f46; }
+    .b-usd{ background:#cffafe; color:#0e5f6b; }
+    .b-pend{ background:#fef3c7; color:#92400e; }
   .b-nueva{ background:#fef3c7; color:#92400e; } .b-activa{ background:#d1fae5; color:#065f46; }
   .tag-cat { display:inline-block; padding:1px 6px; border-radius:4px; background:#e0f2fe; color:#0369a1; font-size:.67rem; }
+
+  /* El titular: la situación completa en una frase, antes de cualquier tabla.
+     Había que leer dos tarjetas y cruzarlas para saber cómo se está. */
+  .hero { background:linear-gradient(135deg,var(--navy),#2d5a8a); color:#fff;
+          border-radius:14px; padding:20px 22px; margin-bottom:14px; }
+  .hero-estado { font-size:.72rem; font-weight:700; text-transform:uppercase;
+                 letter-spacing:.6px; opacity:.85; }
+  .hero-frase { font-size:1.5rem; font-weight:800; line-height:1.25; margin:6px 0 0; }
+  .hero-frase b { color:#fbbf24; }
+  .hero-accion { font-size:.92rem; line-height:1.5; margin-top:10px;
+                 padding-top:10px; border-top:1px solid rgba(255,255,255,.22); }
+  .hero-accion b { color:#fbbf24; }
+  .hero.ok .hero-frase b, .hero.ok .hero-accion b { color:#6ee7b7; }
+  /* La precisión sobre pagos atrasados: matiza el titular sin competir con él */
+  .hero-nota { font-size:.82rem; line-height:1.45; margin-top:9px; padding-top:9px;
+               border-top:1px dashed rgba(255,255,255,.22); opacity:.92; }
+
+  /* La tabla que acompaña al gráfico apilado. El color marca desviación contra
+     lo habitual de cada fila; los montos se leen sin pasar el cursor. */
+  /* El pie de cada vista: dice qué se está mirando y qué queda fuera.
+     Deliberadamente discreto -sin fondo de color ni borde grueso- porque es
+     material de consulta, no algo que competir con los números. Pero va SIEMPRE
+     al final de cada pestaña, que es donde uno llega con la duda. */
+  .pie-vista { margin:22px 0 6px; padding:14px 16px; border-top:1px solid #e2e8f0;
+               font-size:.78rem; line-height:1.55; color:var(--muted); }
+  .pie-vista b { color:#475569; }
+  .pie-vista .pv-t { font-weight:700; color:#64748b; text-transform:uppercase;
+                     letter-spacing:.5px; font-size:.68rem; margin-bottom:8px; }
+  .pie-vista p { margin:0 0 6px; }
+  .pie-vista p:last-child { margin-bottom:0; }
+
+  .wrap-tabla { overflow-x:auto; }
+  .tabla-grupos { font-size:.78rem; }
+  .tabla-grupos td, .tabla-grupos th { padding:5px 9px; white-space:nowrap; }
+  .tabla-grupos tbody td:first-child { font-weight:600; }
+  /* En el teléfono la tabla se desplaza de lado; sin fijar la primera columna
+     uno acaba mirando una fila de montos sin saber de qué categoría son. */
+  .tabla-grupos th:first-child, .tabla-grupos td:first-child {
+    position:sticky; left:0; z-index:1; background:#fff;
+    box-shadow:1px 0 0 #e2e8f0; }
+  .tabla-grupos thead th:first-child { background:var(--navy); }
+  .tabla-grupos .fila-total td:first-child { background:#f8fafc; }
+  .tabla-grupos .punto { display:inline-block; width:9px; height:9px; border-radius:2px;
+                         margin-right:7px; vertical-align:baseline; }
+  .tabla-grupos .cero { color:#cbd5e1; }
+  .tabla-grupos .tipico { color:var(--muted); border-left:1px solid #e2e8f0; }
+  /* Dos intensidades: la fuerte es para lo que se sale de verdad */
+  .tabla-grupos .d-alto   { background:#fef2f2; color:#b91c1c; }
+  .tabla-grupos .d-alto-f { background:#fee2e2; color:#991b1b; font-weight:700; }
+  .tabla-grupos .d-bajo   { background:#f0fdf4; color:#047857; }
+  .tabla-grupos .d-bajo-f { background:#dcfce7; color:#065f46; font-weight:700; }
+  .tabla-grupos .fila-total td { border-top:2px solid var(--navy); font-weight:700;
+                                 background:#f8fafc; }
+  @media (max-width:520px){ .hero-frase { font-size:1.25rem; } }
+
+  /* El runway manda: los otros tres KPI son contexto */
+  #rw-card-meses { grid-column:1/-1; border-top-width:6px; }
+  #rw-card-meses .kpi-value { font-size:2.4rem; }
+  @media (min-width:760px){ #rw-card-meses { grid-column:span 2; } }
+
+  /* Los supuestos se pliegan: están para auditar, no para leer siempre */
+  details.card-full > summary { list-style:none; cursor:pointer;
+        font-size:.82rem; font-weight:700; text-transform:uppercase;
+        letter-spacing:.5px; color:var(--navy); padding-bottom:8px;
+        border-bottom:2px solid var(--border); margin-bottom:12px; }
+  details.card-full > summary::-webkit-details-marker { display:none; }
+  details.card-full > summary::after { content:" ▸"; color:var(--muted); }
+  details.card-full[open] > summary::after { content:" ▾"; }
+
+  .seg { display:flex; gap:10px; align-items:flex-start; padding:9px 0;
+         border-bottom:1px solid var(--border); font-size:.85rem; line-height:1.5; }
+  .seg:last-child { border-bottom:0; }
+  .seg-punto { width:9px; height:9px; border-radius:50%; flex:0 0 9px; margin-top:6px; }
+  .seg-mal { color:var(--navy); }
+
+  /* Lo que hay que revisar */
+  .anom { border:1px solid var(--border); border-left:4px solid var(--amber);
+          border-radius:10px; padding:12px 14px; margin-bottom:10px; }
+  .anom-alta { border-left-color:var(--red); }
+  .anom-cab { display:flex; justify-content:space-between; gap:10px;
+              align-items:baseline; flex-wrap:wrap; }
+  .anom-tit { font-weight:700; font-size:.9rem; }
+  .anom-conf { font-size:.68rem; font-weight:700; text-transform:uppercase;
+               letter-spacing:.4px; color:var(--muted); white-space:nowrap; }
+  .anom-det { font-size:.82rem; line-height:1.5; margin-top:5px; }
+  .anom-imp { font-size:.78rem; color:var(--muted); margin-top:5px; }
+  .anom-cfg { background:#f8fafc; border:1px solid var(--border); border-radius:6px;
+              padding:8px 10px; font-size:.74rem; margin:8px 0 0; overflow-x:auto;
+              font-family:ui-monospace,Menlo,Consolas,monospace; white-space:pre; }
+
+  /* El selector va donde se ve su efecto, no al final */
+  .selector-esc { display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+                  margin:2px 0 4px; }
+  .selector-esc-tit { font-size:.72rem; font-weight:700; text-transform:uppercase;
+                      letter-spacing:.4px; color:var(--muted); }
+  .selector-esc .chips { margin:0; }
+
+  /* Escenarios de gasto */
+  .esc-panel { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+               gap:12px; margin-top:14px; }
+  .esc-caja { border:1px solid var(--border); border-radius:10px; padding:12px 14px; }
+  .esc-caja.sel { border-color:var(--blue); background:#eff6ff; box-shadow:0 0 0 1px var(--blue) inset; }
+  .esc-tit { font-size:.72rem; font-weight:700; text-transform:uppercase;
+             letter-spacing:.3px; color:var(--muted); }
+  .esc-gasto { font-size:1.28rem; font-weight:800; margin:5px 0 1px; }
+  .esc-meses { font-size:.8rem; color:var(--muted); }
+  .esc-meses b { color:var(--navy); font-size:.92rem; }
+  .esc-rango { background:#f8fafc; border:1px solid var(--border); border-radius:10px;
+               padding:11px 14px; font-size:.82rem; margin-top:12px; }
+
+  /* Donde se va la plata: una barra por comercio */
+  .cm { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:2px 10px;
+        align-items:baseline; padding:7px 0; border-bottom:1px solid var(--border); }
+  .cm:last-child { border-bottom:0; }
+  .cm-nom { font-weight:600; font-size:.84rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .cm-val { font-weight:700; font-size:.86rem; white-space:nowrap; }
+  .cm-barra { grid-column:1/-1; height:7px; border-radius:4px; background:var(--border); overflow:hidden; margin-top:3px; }
+  .cm-barra i { display:block; height:100%; border-radius:4px; }
+  .cm-meta { grid-column:1/-1; font-size:.71rem; color:var(--muted); margin-top:3px; }
+  /* Lo unico y lo fijo se atenuan: no son decisiones que se puedan tomar hoy */
+  .cm.pasivo .cm-nom, .cm.pasivo .cm-val { opacity:.55; font-weight:600; }
+
+  .et { display:inline-block; padding:1px 7px; border-radius:99px; font-size:.66rem;
+        font-weight:600; vertical-align:middle; }
+  .et-rec { background:#dcfce7; color:#166534; }
+  .et-oca { background:#fef3c7; color:#92400e; }
+  .et-uni { background:#e5e7eb; color:#4b5563; }
+  .et-fij { background:#e0e7ff; color:#3730a3; }
+
+  /* El goteo */
+  .goteo-hero { background:linear-gradient(135deg,#fef3c7,#fde68a); border-radius:12px;
+                padding:16px 18px; margin-bottom:14px; }
+  .goteo-num { font-size:2rem; font-weight:800; color:#78350f; line-height:1.1; }
+  .goteo-sub { font-size:.82rem; color:#92400e; margin-top:3px; }
+  .goteo-fila { display:flex; justify-content:space-between; gap:10px; align-items:baseline;
+                padding:6px 0; border-bottom:1px solid var(--border); font-size:.82rem; }
+  .goteo-fila:last-child { border-bottom:0; }
+  .goteo-fila b { white-space:nowrap; }
+  .goteo-tick { font-size:.72rem; color:var(--muted); }
+
+  /* Palancas: que hacer y cuanto se gana */
+  .palanca { border:1px solid var(--border); border-radius:10px; padding:13px 15px;
+             margin-bottom:10px; border-left:4px solid var(--blue); }
+  .palanca-cab { display:flex; justify-content:space-between; gap:12px; align-items:baseline; flex-wrap:wrap; }
+  .palanca-tit { font-weight:700; font-size:.92rem; }
+  .palanca-gana { font-weight:800; color:var(--green); font-size:.92rem; white-space:nowrap; }
+  .palanca-cifras { font-size:.78rem; color:var(--muted); margin:6px 0 7px; }
+  .palanca-cifras b { color:var(--navy); }
+  .palanca-como { font-size:.79rem; line-height:1.5; }
+  .palanca-total { background:#ecfdf5; border:1px solid #a7f3d0; border-radius:10px;
+                   padding:13px 15px; font-size:.88rem; color:#065f46; margin-top:4px; }
+  .palanca-total b { font-size:1.05rem; }
   .num { text-align:right; font-variant-numeric:tabular-nums; }
   .vacio { color:var(--muted); text-align:center; padding:26px; font-size:.85rem; }
 
@@ -146,11 +300,59 @@
   <div class="tabs">
     <button class="tab on" id="tab-rt">Mes en curso</button>
     <button class="tab" id="tab-of">Cierre mensual</button>
-    <button class="tab" id="tab-an">Análisis</button>
+    <button class="tab" id="tab-rw">Cuánto alcanza</button>
+    <button class="tab" id="tab-br">Todo el movimiento</button>
   </div>
 
   <!-- ===================== VISTA 1: MES EN CURSO ===================== -->
   <main id="vista-rt">
+    <div class="hero" id="rt-hero">
+      <div class="hero-estado" id="rt-hero-estado">&mdash;</div>
+      <div class="hero-frase" id="rt-hero-frase">&mdash;</div>
+      <div class="hero-accion" id="rt-hero-accion"></div>
+    </div>
+
+
+    <div class="aviso" id="an-aviso" style="display:none"></div>
+
+    <div class="card-full" id="an-veredicto-card">
+      <div class="an-hero">
+        <div class="an-hero-txt">
+          <div class="kpi-label" id="an-kpi-label">Tu gasto mes a mes</div>
+          <div class="an-hero-sub" id="an-veredicto-sub" style="display:none"></div>
+          <div id="an-veredicto" style="display:none"></div>
+        </div>
+        <div class="an-hero-chart"><canvas id="chAnRitmo"></canvas></div>
+      </div>
+    </div>
+
+    
+
+    <div class="card-full">
+      <div class="card-title">Dónde se está yendo la diferencia</div>
+      <p class="an-nota">Gasto del mes en curso contra tu promedio de los meses anteriores,
+        ajustado al día <span id="an-dia">—</span>. En rojo lo que va por sobre tu costumbre.</p>
+      <div id="an-desvios"></div>
+    </div>
+
+    <div class="chart-grid" id="rt-grid-patrones">
+      <div class="card">
+        <div class="card-title">Gastos hormiga</div>
+        <p class="an-nota">Compras chicas y frecuentes. Suman más de lo que parecen.</p>
+        <div id="an-hormiga"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Comercios que más te cuestan</div>
+        <p class="an-nota">Los 6 con mayor gasto acumulado en el mes.</p>
+        <div id="an-comercios"></div>
+      </div>
+    </div>
+
+    <div class="card-full">
+      <div class="card-title">Qué haría yo con estos números</div>
+      <div id="an-consejos"></div>
+    </div>
+
     <div class="aviso">Datos <b>provisionales</b> desde las notificaciones del banco (al día). Los montos definitivos se confirman en el estado de cuenta.</div>
 
     <div class="kpi-grid">
@@ -227,14 +429,28 @@
       </div>
     </div>
 
-    <div class="card-full">
-      <div class="card-title">Tendencia mensual por origen <span id="rt-tend-nota" style="color:var(--muted);font-weight:400;text-transform:none"></span></div>
-      <div class="chart-wrap"><canvas id="chRtTendencia"></canvas></div>
+    
+
+    
+
+    <div class="card-full" id="rt-card-comp" style="display:none">
+      <div class="card-title">Este mes contra los anteriores <span id="rt-comp-nota" style="color:var(--muted);font-weight:400;text-transform:none"></span></div>
+      <p class="an-nota" id="rt-comp-resumen"></p>
+      <div class="chart-wrap"><canvas id="chRtComp"></canvas></div>
+      <p class="an-nota nota-tabla" style="margin-top:16px"></p>
+      <div class="wrap-tabla" id="tabla-rt-comp"></div>
     </div>
 
-    <div class="card-full">
-      <div class="card-title">Evolución por categoría <span style="color:var(--muted);font-weight:400;text-transform:none">· top 6 + otros</span></div>
-      <div class="chart-wrap"><canvas id="chRtCatMes"></canvas></div>
+    <div class="card-full" id="rt-card-usd" style="display:none">
+      <div class="card-title">Compras en dólares <span style="color:var(--muted);font-weight:400;text-transform:none">· el peso es estimado hasta que llega el estado de cuenta</span></div>
+      <div style="display:flex;align-items:baseline;gap:12px;margin:2px 0 10px">
+        <span id="rt-usd-total" style="font-size:1.5rem;font-weight:700;color:#0e5f6b"></span>
+        <span id="rt-usd-sub" style="font-size:.78rem;color:var(--muted)"></span>
+      </div>
+      <table>
+        <thead><tr><th>Comercio</th><th class="num"></th><th class="num">Dólares</th><th class="num">En pesos</th></tr></thead>
+        <tbody id="rt-usd-tabla"></tbody>
+      </table>
     </div>
 
     <div class="card-full">
@@ -269,7 +485,30 @@
 
   <!-- ===================== VISTA 2: CIERRE MENSUAL ===================== -->
   <main id="vista-of" style="display:none">
-    <div class="aviso ofi">Datos <b>oficiales</b> del banco (estado de cuenta y cartola). Se actualizan una vez al mes.</div>
+    <div class="hero" id="of-hero">
+      <div class="hero-estado" id="of-hero-estado">&mdash;</div>
+      <div class="hero-frase" id="of-hero-frase">&mdash;</div>
+      <div class="hero-accion" id="of-hero-accion"></div>
+    </div>
+
+    <div class="filtros">
+      <div class="fgrupo">
+        <span class="lbl">Mes</span>
+        <div class="fchips" id="of-chips-mes"></div>
+      </div>
+      <div class="fgrupo">
+        <span class="lbl">Tipo</span>
+        <div class="fchips">
+          <button class="chip on" data-f="of-tipo" data-v="todos">Todos</button>
+          <button class="chip" data-f="of-tipo" data-v="contado">Contado</button>
+          <button class="chip" data-f="of-tipo" data-v="cuotas">En cuotas</button>
+        </div>
+      </div>
+      <div class="fgrupo">
+        <span class="lbl">Tarjeta</span>
+        <div class="fchips" id="of-chips-tarjeta"></div>
+      </div>
+    </div>
 
     <div class="kpi-grid">
       <div class="kpi-card purple">
@@ -304,55 +543,65 @@
       </div>
     </div>
 
-    <div class="filtros">
-      <div class="fgrupo">
-        <span class="lbl">Mes</span>
-        <div class="fchips" id="of-chips-mes"></div>
-      </div>
-      <div class="fgrupo">
-        <span class="lbl">Tipo</span>
-        <div class="fchips">
-          <button class="chip on" data-f="of-tipo" data-v="todos">Todos</button>
-          <button class="chip" data-f="of-tipo" data-v="contado">Contado</button>
-          <button class="chip" data-f="of-tipo" data-v="cuotas">En cuotas</button>
-        </div>
-      </div>
-      <div class="fgrupo">
-        <span class="lbl">Tarjeta</span>
-        <div class="fchips" id="of-chips-tarjeta"></div>
-      </div>
+    <div class="card-full">
+      <div class="card-title">Evolución mensual cuenta corriente
+        <span style="color:var(--muted);font-weight:400;text-transform:none">· entradas, salidas y saldo al cierre</span></div>
+      <p class="an-nota" id="of-saldo-nota"></p>
+      <div class="chart-wrap"><canvas id="chartCC"></canvas></div>
+    </div>
+
+    <div class="card-full">
+      <div class="card-title">Cuánto gastaste cada mes
+        <span style="color:var(--muted);font-weight:400;text-transform:none">· gasto total, todos los medios de pago</span></div>
+      <p class="an-nota" id="of-total-nota"></p>
+      <div class="chart-wrap"><canvas id="chOfTotal"></canvas></div>
+    </div>
+
+    <div class="card-full">
+      <div class="card-title">Tendencia por gran categoría
+        <span style="color:var(--muted);font-weight:400;text-transform:none">· 6 meses</span></div>
+      <p class="an-nota">Las ~39 categorías agrupadas en bloques, para ver el movimiento de fondo
+        sin perderse en el detalle.</p>
+      <div class="chart-wrap"><canvas id="chAnGrupos"></canvas></div>
+      <p class="an-nota nota-tabla" style="margin-top:16px"></p>
+      <div class="wrap-tabla" id="tabla-an-grupos"></div>
     </div>
 
     <div class="chart-grid">
       <div class="card">
-        <div class="card-title">Contado vs Cuotas (tarjeta)</div>
+        <div class="card-title">Contado vs Cuotas <span style="color:var(--muted);font-weight:400;text-transform:none">· solo tarjeta de crédito</span></div>
         <div class="chart-wrap-sm"><canvas id="chOfTipo"></canvas></div>
       </div>
       <div class="card">
-        <div class="card-title">Gastos TC por categoría</div>
+        <div class="card-title">Gastos por categoría <span style="color:var(--muted);font-weight:400;text-transform:none">· solo tarjeta de crédito</span></div>
         <div class="chart-wrap-sm"><canvas id="chOfCat"></canvas></div>
       </div>
     </div>
 
     <div class="card-full">
-      <div class="card-title">Evolución por categoría <span style="color:var(--muted);font-weight:400;text-transform:none">· top 6 + otros (tarjeta)</span></div>
-      <div class="chart-wrap"><canvas id="chOfCatMes"></canvas></div>
-    </div>
-
-    <div class="card-full">
-      <div class="card-title">Saldo de la cuenta corriente al cierre de cada mes</div>
-      <p class="an-nota" id="of-saldo-nota"></p>
-      <div class="chart-wrap"><canvas id="chartSaldo"></canvas></div>
-    </div>
-
-    <div class="card-full">
-      <div class="card-title">Evolución mensual cuenta corriente</div>
-      <div class="chart-wrap"><canvas id="chartCC"></canvas></div>
-    </div>
-
-    <div class="card-full">
       <div class="card-title">Compromisos de cuotas &mdash; próximos meses</div>
+      <p class="an-nota" id="of-cuotas-nota"></p>
       <div class="chart-wrap"><canvas id="chartProy"></canvas></div>
+    </div>
+
+    <div class="card-full">
+      <div class="card-title">Evolución por categoría <span style="color:var(--muted);font-weight:400;text-transform:none">· solo tarjeta de crédito</span> <span style="color:var(--muted);font-weight:400;text-transform:none">· top 6 + otros (tarjeta)</span></div>
+      <div class="chart-wrap"><canvas id="chOfCatMes"></canvas></div>
+      <p class="an-nota nota-tabla" style="margin-top:16px"></p>
+      <div class="wrap-tabla" id="tabla-of-catmes"></div>
+    </div>
+
+    <div class="card-full" id="of-card-serv" style="display:none">
+      <div class="card-title">Cuentas que pagas juntas <span style="color:var(--muted);font-weight:400;text-transform:none">· abiertas del comprobante</span></div>
+      <p class="an-nota">En la cartola son una sola transferencia. Esto es lo que hay dentro.</p>
+      <div class="chart-wrap"><canvas id="chOfServicios"></canvas></div>
+      <p class="an-nota nota-tabla" style="margin-top:16px"></p>
+      <div class="wrap-tabla" id="tabla-of-serv"></div>
+      <div id="of-serv-mes" style="font-size:.8rem;color:var(--muted);margin:18px 0 6px"></div>
+      <table>
+        <thead><tr><th>Empresa</th><th>Categoría</th><th class="num">Monto</th></tr></thead>
+        <tbody id="of-serv-tabla"></tbody>
+      </table>
     </div>
 
     <div class="card-full">
@@ -385,7 +634,9 @@
     </div>
 
     <div class="card-full">
-      <div class="card-title">Detalle de cuotas pendientes</div>
+      <div class="card-title">Detalle de cuotas pendientes
+        <span style="color:var(--muted);font-weight:400;text-transform:none">· lo que queda por facturar</span></div>
+      <p class="an-nota" id="of-cuotas-facturadas"></p>
       <div style="overflow-x:auto">
         <table>
           <thead><tr>
@@ -396,65 +647,218 @@
         </table>
       </div>
     </div>
+
+    <div class="aviso ofi">Datos <b>oficiales</b> del banco (estado de cuenta y cartola). Se actualizan una vez al mes.</div>
   </main>
 
-  <!-- ===================== VISTA 3: ANÁLISIS ===================== -->
-  <main id="vista-an" style="display:none">
-    <div class="filtros">
-      <div class="fgrupo">
-        <span class="lbl">Qué analizar</span>
-        <div class="fchips">
-          <button class="chip on" data-f="an-modo" data-v="curso">Mes en curso vs tendencia</button>
-          <button class="chip" data-f="an-modo" data-v="cerrado" id="an-chip-cerrado">Cierre del período anterior</button>
+  <!-- ===================== VISTA 4: TODO EL MOVIMIENTO ===================
+       La cuenta tal como la ve el banco. Las otras tres vistas descartan
+       cosas a propósito -el pago de la tarjeta porque la compra ya se contó,
+       Colmena porque la devuelve la suegra, el traspaso a la inversión porque
+       no es gasto- y cada exclusión está bien fundada, pero juntas dejaban al
+       usuario sin ningún lugar donde cotejar contra la cartola. Aquí no se
+       descarta nada. -->
+  <main id="vista-br" style="display:none">
+    <div class="hero" id="br-hero">
+      <div class="hero-estado" id="br-hero-estado">&mdash;</div>
+      <div class="hero-frase" id="br-hero-frase">&mdash;</div>
+      <div class="hero-accion" id="br-hero-accion"></div>
+    </div>
+
+    <div class="aviso ofi" style="margin-bottom:14px">
+      <b>Sin filtros ni exclusiones.</b> Todo lo que entró y salió de la cuenta
+      corriente, incluido el pago de la tarjeta, los traspasos a la inversión y
+      lo que un tercero devuelve. Los totales de aquí son los que cuadran con tu
+      cartola línea por línea. Para saber <i>en qué gastaste</i>, la vista es
+      &laquo;Cierre mensual&raquo;; esta es para cotejar con el banco.
+    </div>
+
+    <div class="card-full">
+      <div class="card-title">Entró y salió, mes a mes</div>
+      <div class="chart-wrap"><canvas id="chBrFlujo"></canvas></div>
+    </div>
+
+    <div class="card-full">
+      <div class="card-title">Lo que entró
+        <span style="color:var(--muted);font-weight:400;text-transform:none">· por categoría</span></div>
+      <p class="an-nota nota-tabla"></p>
+      <div class="wrap-tabla" id="tabla-br-entradas"></div>
+    </div>
+
+    <div class="card-full">
+      <div class="card-title">Lo que salió
+        <span style="color:var(--muted);font-weight:400;text-transform:none">· por categoría</span></div>
+      <p class="an-nota nota-tabla"></p>
+      <div class="wrap-tabla" id="tabla-br-salidas"></div>
+    </div>
+  </main>
+
+  <!-- ===================== VISTA 3: CUÁNTO ALCANZA ===================== -->
+  <main id="vista-rw" style="display:none">
+    <div class="hero" id="rw-hero">
+      <div class="hero-estado" id="rw-hero-estado">&mdash;</div>
+      <div class="hero-frase" id="rw-hero-frase">&mdash;</div>
+      <div class="hero-accion" id="rw-hero-accion"></div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card" id="rw-card-meses">
+        <div class="kpi-label">Alcanza para</div>
+        <div class="kpi-value" id="rw-meses">&mdash;</div>
+        <div class="kpi-sub" id="rw-hasta">&mdash;</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-label">Gasto mensual estimado</div>
+        <div class="kpi-value" id="rw-burn">&mdash;</div>
+        <div class="kpi-sub" id="rw-tendencia">&mdash;</div>
+      </div>
+      <div class="kpi-card teal">
+        <div class="kpi-label">Fondos disponibles</div>
+        <div class="kpi-value" id="rw-fondos">&mdash;</div>
+        <div class="kpi-sub" id="rw-fondos-sub">&mdash;</div>
+      </div>
+      <div class="kpi-card purple">
+        <div class="kpi-label">Puedes decidir sobre</div>
+        <div class="kpi-value" id="rw-discrecional">&mdash;</div>
+        <div class="kpi-sub" id="rw-comprometido">&mdash;</div>
+      </div>
+    </div>
+
+    <details class="card-full" open><summary>Cuánto gastas realmente</summary>
+      <p class="an-nota">Elige con qué medida proyectar: cambia el runway, el
+        gráfico y el aviso de rescate. Cuando las cuatro se parecen, el número
+        es confiable.</p>
+      <div class="selector-esc">
+        <span class="selector-esc-tit">Proyectar con</span>
+        <div class="chips" id="rw-esc-chips"></div>
+      </div>
+      <div class="esc-panel" id="rw-esc-panel"></div>
+      <p class="an-nota" id="rw-esc-nota" style="margin:12px 0 0"></p>
+      <!-- El histórico vive aquí, junto al selector: es el respaldo de las
+           cuatro medidas y no una tarjeta aparte. Ojo, NO es el mismo gráfico
+           que "Cuánto gastaste cada mes" de Cierre mensual: este mide la caja
+           de la cartola y aquel las compras que se pueden abrir por categoría. -->
+      <p class="an-nota" style="margin:18px 0 0"><b>De dónde salen esas medidas</b>
+        &mdash; lo que salió de la cuenta cada mes. En rojo los que superaron el
+        gasto mensual estimado.</p>
+      <div class="chart-wrap"><canvas id="chRwGasto"></canvas></div>
+    </details>
+
+    <div class="card-full">
+      <div class="card-title">Cómo baja el saldo, mes a mes</div>
+      <p class="an-nota" id="rw-nota-serie"></p>
+      <div class="chart-wrap"><canvas id="chRwSerie"></canvas></div>
+    </div>
+
+    <!-- Rescate: la urgencia y la política, en una sola tarjeta.
+         Estaban separadas y decían lo mismo desde dos ángulos -"saca X antes
+         del Y" y "cada cuánto conviene sacar"-, obligando a leer dos veces
+         para una sola decisión. -->
+    <div class="card-full" id="rw-card-rescate">
+      <div class="card-title">Sacar plata de la inversión</div>
+      <div id="rw-alerta" style="display:none;margin:4px 0 18px;padding-left:12px;
+                                 border-left:4px solid var(--muted)">
+        <div style="font-weight:700" id="rw-alerta-titulo"></div>
+        <p id="rw-alerta-msg" style="font-size:1.02rem;margin:6px 0 10px"></p>
+        <table>
+          <thead><tr><th>Cuándo</th><th>Qué se paga</th><th class="num">Monto</th></tr></thead>
+          <tbody id="rw-alerta-detalle"></tbody>
+        </table>
+      </div>
+      <p class="an-nota">Evalué mover los pagos a después de que entra la plata
+        y <b>no sirve</b>: con el mes en déficit, el saldo final es el mismo se
+        pague el 8 o el 26 &mdash;y adelantarlos empeora, porque el día crítico
+        se corre del 12 al 8. Lo que sí puedes decidir es cada cuánto rescatar.</p>
+      <div id="rw-rescate"></div>
+      <p class="an-nota" id="rw-rescate-nota" style="margin-top:12px"></p>
+    </div>
+
+    <div class="card-full" id="rw-card-seguimiento" style="display:none">
+      <div class="card-title">Lo que el tablero te recomendó</div>
+      <p class="an-nota">Se verifica mirando la cuenta, no preguntándote: un
+        rescate deja un abono. Si no aparece, quedó sin hacer.</p>
+      <div id="rw-seguimiento"></div>
+    </div>
+
+    <div class="card-full">
+      <div class="card-title">Qué puedes hacer, y cuánto ganas con eso</div>
+      <p class="an-nota">Sin sueldo entrando, la unidad que importa no son los
+        pesos: son los meses. Cada palanca dice cuánto cuesta hoy, cuánto se
+        podría ahorrar y cuánto runway agrega.</p>
+      <div id="rw-palancas"></div>
+      <div class="palanca-total" id="rw-palancas-total"></div>
+    </div>
+
+    <!-- Los dos insumos de las palancas, juntos y plegados: son el detalle de
+         "dónde recortar" y antes ocupaban dos tarjetas abiertas con listas
+         largas, que es lo que estiraba la vista. -->
+    <details class="card-full" id="rw-card-goteo">
+      <summary>Dónde recortar &mdash; comercios y goteo</summary>
+
+      <p class="an-nota" style="margin-top:10px"><b>Dónde se va la plata.</b>
+        Cada barra es un comercio, no una categoría. "Salud $142.280" no se
+        puede accionar; "Solufar, 37 veces en 6 meses" sí.</p>
+      <div id="rw-comercios"></div>
+      <p class="an-nota" style="margin-top:10px">
+        <span class="et et-rec">recurrente</span> pasa casi todos los meses ·
+        <span class="et et-oca">ocasional</span> algunos ·
+        <span class="et et-uni">único</span> una sola vez, no se repite ·
+        <span class="et et-fij">fijo</span> ya comprometido
+      </p>
+
+      <p class="an-nota" style="margin-top:22px"><b>El goteo.</b> Compras chicas
+        y seguidas. Ninguna duele por sí sola y juntas pesan más que el
+        supermercado: es el gasto más fácil de bajar porque nadie lo está
+        defendiendo, simplemente no se ve.</p>
+      <div class="goteo-hero">
+        <div>
+          <div class="goteo-num" id="rw-goteo-monto">&mdash;</div>
+          <div class="goteo-sub" id="rw-goteo-sub">&mdash;</div>
         </div>
       </div>
-    </div>
-    <div class="aviso" id="an-aviso">Lectura automática de tus últimos 6 meses. Compara el mes en curso contra
-      tu propio promedio, no contra un presupuesto teórico.</div>
+      <div id="rw-goteo-lista"></div>
+    </details>
 
-    <div class="card-full" id="an-veredicto-card">
-      <div class="an-hero">
-        <div class="an-hero-txt">
-          <div class="kpi-label" id="an-kpi-label">Ritmo del mes</div>
-          <div class="an-hero-num" id="an-veredicto">&mdash;</div>
-          <div class="an-hero-sub" id="an-veredicto-sub">&mdash;</div>
-        </div>
-        <div class="an-hero-chart"><canvas id="chAnRitmo"></canvas></div>
-      </div>
-    </div>
+    <!-- El comprometido es UNA de las cuatro filas del reparto: su detalle va
+         adentro, no en una tarjeta hermana que repetía la misma idea. -->
+    <details class="card-full"><summary>En qué se divide tu gasto</summary>
+      <p class="an-nota">No todo lo que no está comprometido es una decisión libre.
+        Nadie decide dejar de comer: separar las cuatro cosas es lo que deja ver
+        sobre cuánto se puede actuar de verdad. El "en 5 de 6 meses" de cada
+        categoría dice en cuántos meses apareció ese gasto &mdash;no son cuotas
+        por pagar&mdash;: lo que ocurre casi todos los meses es parte de tu
+        ritmo, lo que ocurre poco es esporádico.</p>
+      <table>
+        <thead><tr><th>Grupo</th><th>Qué es</th><th class="num">Al mes</th></tr></thead>
+        <tbody id="rw-grupos"></tbody>
+      </table>
+      <div id="rw-reparto-detalle" style="margin-top:16px"></div>
 
-    <div class="card-full">
-      <div class="card-title">Tendencia por gran categoría
-        <span style="color:var(--muted);font-weight:400;text-transform:none">· 6 meses</span></div>
-      <p class="an-nota">Las ~39 categorías agrupadas en bloques, para ver el movimiento de fondo
-        sin perderse en el detalle.</p>
-      <div class="chart-wrap"><canvas id="chAnGrupos"></canvas></div>
-    </div>
+      <p class="an-nota" style="margin-top:22px"><b>Qué es lo que ya está
+        decidido.</b> Estos pagos salen igual, decidas lo que decidas.</p>
+      <table>
+        <thead><tr><th>Compromiso</th><th class="num">Al mes</th></tr></thead>
+        <tbody id="rw-comprometido-detalle"></tbody>
+      </table>
+      <p class="an-nota" id="rw-cuotas-nota" style="margin-top:12px"></p>
+    </details>
 
-    <div class="card-full">
-      <div class="card-title">Dónde se está yendo la diferencia</div>
-      <p class="an-nota">Gasto del mes en curso contra tu promedio de los meses anteriores,
-        ajustado al día <span id="an-dia">—</span>. En rojo lo que va por sobre tu costumbre.</p>
-      <div id="an-desvios"></div>
-    </div>
-
-    <div class="chart-grid">
-      <div class="card">
-        <div class="card-title">Gastos hormiga</div>
-        <p class="an-nota">Compras chicas y frecuentes. Suman más de lo que parecen.</p>
-        <div id="an-hormiga"></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Comercios que más te cuestan</div>
-        <p class="an-nota">Los 6 con mayor gasto acumulado en el mes.</p>
-        <div id="an-comercios"></div>
-      </div>
+    <div class="card-full" id="rw-card-anomalias">
+      <div class="card-title">Revisa esto: puede estar mal contado</div>
+      <p class="an-nota">Patrones que el sistema no puede resolver solo porque
+        dependen de tu vida, pero sí puede reconocer. Cada uno trae la línea
+        exacta para pegar en el archivo de configuración.</p>
+      <div id="rw-anomalias"></div>
     </div>
 
-    <div class="card-full">
-      <div class="card-title">Qué haría yo con estos números</div>
-      <div id="an-consejos"></div>
-    </div>
+    <details class="card-full"><summary>De dónde salen los fondos y otros supuestos</summary>
+      <table>
+        <thead><tr><th>Origen</th><th class="num">Monto</th><th>Actualizado</th></tr></thead>
+        <tbody id="rw-fuentes"></tbody>
+      </table>
+      <p class="an-nota" id="rw-aviso-viejo" style="margin-top:12px"></p>
+      <div id="rw-notas" style="margin-top:18px"></div>
+    </details>
   </main>
 </div>
 
@@ -485,6 +889,12 @@ const filtros = { "rt-mes":"", "rt-origen":"todos", "rt-tipo":"todos", "rt-tarje
                   "an-modo":"curso" };
 const COL_MEDIO = { Credito:"#2563eb", Debito:"#0891b2", Transferencia:"#f59e0b" };
 const NOM_MEDIO = { Credito:"Crédito", Debito:"Débito", Transferencia:"Transferencias" };
+// Lo comprado en el extranjero es su propia categoría en vez de repartirse
+// entre Suscripciones y Otros: son cobros en dólares, casi todos recurrentes,
+// y verlos juntos es lo que permite decidir cuál cortar.
+// El texto debe ser IDÉNTICO al CAT_USD de generar_dashboard.py.
+const CAT_USD = "Compras en dólares";
+const catDe = m => m.usd ? CAT_USD : (m.cat || "Otros");
 const MES_ABR = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
 const mesLabel = k => MES_ABR[parseInt(k.slice(5,7),10) - 1] + " " + k.slice(2,4);
 
@@ -526,6 +936,172 @@ function topCategorias(rows, n) {
   return Object.keys(tot).sort((a,b) => tot[b] - tot[a]).slice(0, n);
 }
 
+// La tabla que acompaña al gráfico apilado: los mismos montos, legibles.
+//
+// El apilado muestra la FORMA -qué bloque creció- pero para leer un monto hay
+// que pasar el cursor por cada segmento, y en el teléfono ni eso.
+//
+// El color marca desviación contra la MEDIANA DE LA PROPIA FILA, no contra el
+// total: lo que interesa es si Alimentación se salió de lo que gasta
+// Alimentación. La mediana y no el promedio, porque un mes extraordinario
+// -mayo, con 2,2 millones de salud- arrastraría el promedio y haría que los
+// meses normales parecieran bajos.
+//
+// Se pinta solo cuando la diferencia es material en las DOS dimensiones: al
+// menos un 25% y al menos 50.000 pesos. Sin el piso en pesos, una categoría
+// que gasta 8.000 al mes salía roja por 3.000 de diferencia y la tabla
+// quedaba llena de colores que no significaban nada.
+// 35% y no 25%: con el umbral bajo, la tabla de la tarjeta -que se mueve entre
+// 3,8 millones y 725 mil según el mes- pintaba más de la mitad de sus celdas.
+// Cuando casi todo está marcado, el color deja de marcar.
+const DESV_PCT = 0.35, DESV_PCT_FUERTE = 0.60;
+// El piso en pesos es PROPORCIONAL al tamaño de la tabla, no un monto fijo.
+// Un fijo de 50.000 servía en la tabla de grandes categorías -3,6 millones al
+// mes- y dejaba sin marcar media tabla en la de Sencillito, que se mueve en
+// 744.000. Lo que hace "material" a una diferencia depende de la escala de lo
+// que se está mirando.
+const DESV_FRAC = 0.015, DESV_FRAC_FUERTE = 0.045, DESV_PISO = 15000;
+
+function _mediana(a) {
+  const v = a.filter(x => x > 0).sort((x, y) => x - y);
+  if (!v.length) return 0;
+  const i = Math.floor(v.length / 2);
+  return v.length % 2 ? v[i] : (v[i - 1] + v[i]) / 2;
+}
+
+// Construye la tabla entera dentro de `idContenedor`. `datasets` y `labels`
+// son los MISMOS que recibe el gráfico, así las dos cosas no pueden discrepar.
+function pintarTablaApilada(idContenedor, datasets, labels, encabezado) {
+  const cont = document.getElementById(idContenedor);
+  if (!cont) return;
+  if (!datasets || !datasets.length) { cont.innerHTML = ""; return; }
+
+  // Ordenadas por tamaño: lo que más pesa se lee primero
+  const filas = datasets.map(ds => ({
+    label: ds.label, data: ds.data || [], color: ds.backgroundColor,
+    tipico: _mediana(ds.data || []),
+    total: (ds.data || []).reduce((a, x) => a + x, 0),
+  })).sort((a, b) => b.total - a.total);
+
+  const tot = labels.map((_, i) => filas.reduce((a, f) => a + (f.data[i] || 0), 0));
+  const escala = _mediana(tot) || Math.max(...tot, 0);
+  const min = Math.max(DESV_PISO, escala * DESV_FRAC);
+  const minF = Math.max(DESV_PISO * 3, escala * DESV_FRAC_FUERTE);
+
+  // Solo se colorea una fila que tenga un patrón del que desviarse. Una
+  // categoría que aparece dos meses de seis no tiene "lo habitual": su mediana
+  // es un accidente, y contra ella cualquier mes con actividad sale rojo. Sin
+  // este filtro la tabla de la tarjeta pintaba la mitad de sus celdas y el
+  // color dejaba de significar nada.
+  const celda = (v, tipico, estable) => {
+    const d = v - tipico;
+    const pct = tipico ? Math.abs(d) / tipico : 0;
+    let cls = "";
+    if (estable) {
+      if (Math.abs(d) >= minF && pct >= DESV_PCT_FUERTE) cls = d > 0 ? "d-alto-f" : "d-bajo-f";
+      else if (Math.abs(d) >= min && pct >= DESV_PCT)    cls = d > 0 ? "d-alto" : "d-bajo";
+    }
+    const tit = cls
+      ? " title='" + (d > 0 ? "+" : "−") + clp(Math.abs(d)).slice(1) +
+        " que lo habitual (" + clp(tipico) + ")'" : "";
+    return "<td class='num " + cls + "'" + tit + ">" +
+           (v ? clp(v) : "<span class='cero'>—</span>") + "</td>";
+  };
+
+  cont.innerHTML =
+    "<table class='tabla-grupos'><thead><tr><th>" + esc(encabezado || "Categoría") +
+    "</th>" + labels.map(l => "<th class='num'>" + esc(l) + "</th>").join("") +
+    "<th class='num'>Habitual</th></tr></thead><tbody>" +
+    filas.map(f => {
+      const presencia = f.data.filter(x => x > 0).length;
+      const estable = presencia >= Math.ceil(labels.length / 2) && f.tipico > 0;
+      return "<tr><td><span class='punto' style='background:" + f.color + "'></span>" +
+        esc(f.label) + "</td>" +
+        f.data.map(v => celda(v || 0, f.tipico, estable)).join("") +
+        "<td class='num tipico'>" + (estable ? clp(f.tipico)
+          : "<span class='cero' title='Aparece en " + presencia + " de " +
+            labels.length + " periodos: no hay un patrón del que desviarse'>—</span>") +
+        "</td></tr>";
+    }).join("") +
+    // El total cierra la tabla y tiene que dar lo mismo que la etiqueta sobre
+    // cada barra del gráfico de arriba.
+    "<tr class='fila-total'><td>Total</td>" +
+    tot.map(v => "<td class='num'>" + clp(v) + "</td>").join("") +
+    "<td class='num'>" + clp(_mediana(tot)) + "</td></tr></tbody></table>";
+}
+
+// ── El pie de cada vista ───────────────────────────────────────────
+//
+// Las cuatro vistas dan cifras distintas del mismo mes y eso es correcto: cada
+// una mide algo distinto. Pero sin decirlo en alguna parte, la reacción sana
+// frente a dos números que no cuadran es desconfiar de los dos.
+//
+// Va al final de cada pestaña -donde uno llega justo con esa duda- y en tono
+// bajo: no compite con los números, está ahí cuando se lo busca.
+const PIES = {
+  rt: ["Mes en curso",
+    "<b>Qué ves:</b> lo que el banco ha notificado del mes en curso, del día 1 " +
+    "hasta hoy. Incluye el pago de las cuentas de Sencillito en cuanto se hace " +
+    "&mdash;llega el aviso de la transferencia el mismo día&mdash;, pero como " +
+    "un solo monto: abrirlo en luz, gas y agua necesita el comprobante, que " +
+    "llega después.",
+    "<b>Qué queda fuera:</b> lo que el banco no alcanzó a notificar y los " +
+    "cargos que solo aparecen en la cartola.",
+    "<b>Por eso:</b> esta cifra va a ser algo menor que la del mes ya cerrado. " +
+    "No es el gasto del mes: es lo que se sabe hasta ahora."],
+
+  of: ["Cierre mensual",
+    "<b>Qué ves:</b> meses ya cerrados. El gasto son las compras que el banco " +
+    "notifica más las cuentas de Sencillito, abiertas por categoría. Es la " +
+    "única base que se puede desglosar.",
+    "<b>Qué queda fuera:</b> los cargos que la cartola trae sin decir en qué " +
+    "fueron, el pago de la tarjeta &mdash;la compra ya se contó el día que se " +
+    "hizo&mdash; y lo que un tercero devuelve.",
+    "<b>Por eso:</b> da menos que «Cuánto alcanza», que sí cuenta esos cargos " +
+    "sin detalle."],
+
+  rw: ["Cuánto alcanza",
+    "<b>Qué ves:</b> cuánto hay que financiar cada mes y hasta cuándo alcanza. " +
+    "El gasto es la caja de la cartola, sin los movimientos de capital, más las " +
+    "compras con tarjeta del mes.",
+    "<b>Qué se ajusta:</b> los compromisos declarados entran con su monto " +
+    "típico y no con lo que se pagó ese mes en concreto. Por eso agosto, que " +
+    "pagó cuatro mensualidades del colegio, aquí aparece con una: para " +
+    "proyectar sirve el compromiso estable, no la irregularidad de un mes.",
+    "<b>Por eso:</b> da más que «Cierre mensual» y menos que «Todo el " +
+    "movimiento»."],
+
+  br: ["Todo el movimiento",
+    "<b>Qué ves:</b> la cuenta corriente tal como la ve el banco. Sin ninguna " +
+    "exclusión: el pago de la tarjeta, los traspasos a la inversión y lo que un " +
+    "tercero devuelve están todos.",
+    "<b>Qué queda fuera:</b> nada de la cuenta corriente. Sí quedan fuera las " +
+    "compras con tarjeta de crédito hasta que se facturan, porque todavía no " +
+    "salieron de aquí.",
+    "<b>Por eso:</b> es la única vista cuyos totales cuadran línea por línea " +
+    "con tu cartola. Para saber en qué gastaste, la vista es «Cierre mensual»."],
+};
+
+function pintarPies() {
+  Object.keys(PIES).forEach(v => {
+    const main = document.getElementById("vista-" + v);
+    if (!main || main.querySelector(".pie-vista")) return;
+    const [tit, ...lineas] = PIES[v];
+    const d = document.createElement("div");
+    d.className = "pie-vista";
+    d.innerHTML = "<div class='pv-t'>Qué muestra «" + tit + "»</div>" +
+                  lineas.map(x => "<p>" + x + "</p>").join("");
+    main.appendChild(d);
+  });
+}
+
+// La nota que explica el color. Es la misma para las cuatro tablas.
+const NOTA_TABLA =
+  "Los mismos montos en tabla, para leerlos sin pasar el cursor. En " +
+  "<b style='color:#b91c1c'>rojo</b> lo que se fue por encima de lo habitual de " +
+  "esa fila y en <b style='color:#047857'>verde</b> lo que quedó por debajo; el " +
+  "color aparece solo cuando la diferencia es de verdad.";
+
 function chartApilado(id, labels, datasets) {
   chart(id, {
     type:"bar",
@@ -534,6 +1110,8 @@ function chartApilado(id, labels, datasets) {
       plugins:{ legend:{position:"top", labels:{font:{size:11}, boxWidth:12}},
         tooltip:{ callbacks:{ label:c => " " + c.dataset.label + ": " + clp(c.raw),
           footer:it => "Total: " + clp(it.reduce((a,x) => a + x.raw, 0)) } } },
+      // Espacio arriba para la etiqueta del total, que si no queda cortada
+      layout:{ padding:{top:16} },
       scales:{ x:{ stacked:true, grid:{display:false} }, y:Object.assign({stacked:true}, ejeY) } }
   });
 }
@@ -542,7 +1120,81 @@ function chart(id, cfg) {
   if (charts[id]) charts[id].destroy();
   charts[id] = new Chart(document.getElementById(id), cfg);
 }
-const ejeY = { ticks:{ callback:v => "$"+(v/1e6>=1?(v/1e6).toFixed(1)+"M":v/1e3>=1?(v/1e3).toFixed(0)+"K":v) } };
+// La escala se decide por el valor ABSOLUTO. Comparando el valor con signo,
+// cualquier número negativo fallaba las dos condiciones y caía al crudo: el
+// eje del gráfico de saldos mostraba "$-5000000" entre "$0" y "$5.0M".
+
+// El total encima de cada barra. En los apilados va sobre la pila completa,
+// que es el numero que uno busca cuando mira un mes: cuanto fue en total.
+const etiquetaTotal = {
+  id: "etiquetaTotal",
+  afterDatasetsDraw(ch) {
+    const {ctx, data} = ch;
+    if (!data || !data.datasets || !data.datasets.length) return;
+    if ((ch.config.type || ch.options?.type) !== "bar") return;
+    // Barras horizontales: la etiqueta iría dentro del gráfico y estorba
+    if (ch.options?.indexAxis === "y") return;
+
+    // Solo las barras. Un grafico mixto -barras de flujo con la linea del
+    // saldo encima- traia el dataset de la linea hasta aqui y le escribia el
+    // valor sobre cada punto, tapando el trazado con numeros de otra escala.
+    const visibles = data.datasets
+      .map((ds, i) => ({ds, i}))
+      .filter(x => ch.isDatasetVisible(x.i) && (x.ds.type || "bar") === "bar");
+    if (!visibles.length) return;
+
+    const apilado = !!ch.options?.scales?.x?.stacked;
+    ctx.save();
+    ctx.font = "600 10px system-ui, -apple-system, sans-serif";
+    ctx.fillStyle = "#475569";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "bottom";
+
+    const fmt = v => Math.abs(v) >= 1e6 ? "$" + (v / 1e6).toFixed(1) + "M"
+                   : Math.abs(v) >= 1e3 ? "$" + Math.round(v / 1e3) + "K"
+                   : "$" + Math.round(v);
+
+    data.labels.forEach((_, i) => {
+      if (apilado) {
+        // Una sola etiqueta con el total, centrada sobre la pila
+        let total = 0, arriba = Infinity, x = null;
+        visibles.forEach(({ds, i: di}) => {
+          total += +ds.data[i] || 0;
+          const el = ch.getDatasetMeta(di).data[i];
+          if (el) { if (el.y < arriba) arriba = el.y; if (x === null) x = el.x; }
+        });
+        if (total && isFinite(arriba) && x !== null) ctx.fillText(fmt(total), x, arriba - 4);
+      } else {
+        // Agrupadas: cada barra lleva su propio valor.
+        //
+        // Sumarlas no significa nada -en "Ingresos vs Egresos" el total sería
+        // la suma de dos magnitudes opuestas- y ponerla en la x del primer
+        // dataset la dejaba flotando entre las dos barras, descuadrada.
+        //
+        // Si la barra es más angosta que su etiqueta, no se dibuja: en el
+        // teléfono, ocho meses por dos series daban dieciséis números
+        // encimados que no se podían leer.
+        visibles.forEach(({ds, i: di}) => {
+          const v = +ds.data[i] || 0;
+          const el = ch.getDatasetMeta(di).data[i];
+          if (!v || !el) return;
+          const ancho = el.width || (ch.chartArea.width / (data.labels.length * visibles.length));
+          const t = fmt(v);
+          if (ctx.measureText(t).width > ancho + 4) return;
+          ctx.fillText(t, el.x, el.y - 4);
+        });
+      }
+    });
+    ctx.restore();
+  },
+};
+if (window.Chart) Chart.register(etiquetaTotal);
+
+const ejeY = { ticks:{ callback:v => {
+  const a = Math.abs(v), s = v < 0 ? "-$" : "$";
+  return a >= 1e6 ? s+(a/1e6).toFixed(1)+"M"
+       : a >= 1e3 ? s+(a/1e3).toFixed(0)+"K" : s+a;
+} } };
 
 // ── Descifrado (mismo contrato que cripto.py) ──────────────────────
 async function descifrar(b64, frase) {
@@ -560,6 +1212,10 @@ function mostrar(datos) {
   DATA = datos;
   document.getElementById("login").style.display = "none";
   document.getElementById("app").style.display = "block";
+  // La leyenda del color es la misma en las cuatro tablas: se escribe una vez
+  // en vez de repetirla en el HTML de cada tarjeta.
+  document.querySelectorAll(".nota-tabla").forEach(p => p.innerHTML = NOTA_TABLA);
+  pintarPies();
   // Frescura de los DATOS, no del archivo. El tablero se regenera aunque la
   // descarga de correos falle, asi que "actualizado <hoy>" podia mostrarse
   // sobre datos de hace dias. Se muestra hasta cuando llegan los movimientos y
@@ -593,7 +1249,7 @@ function mostrar(datos) {
   TOP_CATS_OF = topCategorias(ex.movs || [], N_CATS);
   initRango("rt", [...new Set((o.feed || []).map(m => m.mes))].filter(Boolean).sort().reverse());
   initRango("of", [...new Set((ex.movs || []).map(m => m.mes))].filter(Boolean).sort().reverse());
-  initFiltros(); renderRT(); renderOF(); renderAN();
+  initFiltros(); renderRT(); renderOF(); renderAN(); renderRW();
 }
 
 async function entrar(frase) {
@@ -660,9 +1316,23 @@ function initRango(pref, meses) {
   document.getElementById(pref + "-hasta").innerHTML = opts("Hasta: hoy");
 }
 
+// Un canvas dentro de un <details> cerrado se dibuja con tamaño cero: al
+// abrirlo queda una franja aplastada. Chart.js necesita que le digan que ya
+// hay espacio.
+document.addEventListener("toggle", e => {
+  const d = e.target;
+  if (!d.open || d.tagName !== "DETAILS") return;
+  d.querySelectorAll("canvas").forEach(c => {
+    const ch = (window.Chart && Chart.getChart) ? Chart.getChart(c) : null;
+    if (ch) ch.resize();
+  });
+}, true);
+
 document.addEventListener("click", e => {
   const b = e.target.closest(".chip");
-  if (!b) return;
+  // Los chips de escenario también son .chip pero manejan su propio click y no
+  // llevan data-f. Sin esta guarda, este handler global reventaba en cada uno.
+  if (!b || !b.dataset.f) return;
   const f = b.dataset.f;
   document.querySelectorAll('.chip[data-f="' + f + '"]').forEach(x => x.classList.remove("on"));
   b.classList.add("on");
@@ -673,8 +1343,117 @@ document.addEventListener("click", e => {
 });
 
 // ── VISTA 1: mes en curso ──────────────────────────────────────────
+// El titular de cada pestaña: la conclusión antes que el detalle.
+//
+// "Cuánto alcanza" ya abría con una frase que resume la situación, y era la
+// diferencia entre entender de una mirada o tener que armar el diagnóstico
+// leyendo cuatro tarjetas.
+
+function pintarHeroRT(o) {
+  const box = document.getElementById("rt-hero");
+  if (!box) return;
+  if (!o.disponible) {
+    document.getElementById("rt-hero-estado").textContent = "Mes en curso";
+    document.getElementById("rt-hero-frase").textContent = "Aún no hay movimientos procesados.";
+    document.getElementById("rt-hero-accion").textContent = "";
+    return;
+  }
+  // La misma cuenta que hace analizar() para el bloque de abajo. Antes cada
+  // uno la hacía por su lado y daban $189.368 y $162.801 para lo mismo: dos
+  // cifras del mismo dato en la misma pantalla es peor que no mostrar ninguna.
+  const an = (typeof analizar === "function") ? analizar("curso") : null;
+  const dif = an ? (an.real - an.esperadoHoy) : ((o.gasto_mes || 0) - (o.esperado || 0));
+  const base = an ? an.esperadoHoy : (o.esperado || 0);
+  const pct = base ? Math.round(dif / base * 100) : 0;
+  const bien = dif <= 0;
+  // Con pocos días el número existe pero no significa nada todavía: una sola
+  // compra grande lo da vuelta. Decirlo evita confiarse de un buen arranque.
+  const temprano = (o.dia || 0) < 7;
+  box.className = "hero" + (bien ? " ok" : "");
+  document.getElementById("rt-hero-estado").textContent =
+    esc(o.mes_label || "Mes en curso") + " · día " + o.dia + " de " + o.dias_mes;
+  document.getElementById("rt-hero-frase").innerHTML = bien
+    ? "Vas <b>" + clp(Math.abs(dif)) + "</b> bajo tu ritmo habitual."
+    : "Vas <b>" + clp(dif) + "</b> sobre tu ritmo habitual.";
+  const proy = o.dias_mes && o.dia
+    ? Math.round((o.gasto_mes || 0) / o.dia * o.dias_mes) : 0;
+  // Y el aviso que faltaba: este número está incompleto por construcción.
+  // Durante el mes se mide con notificaciones, y hay compras que no generan
+  // ninguna -el minimarket, la panadería, las que el banco resume como
+  // "COMPRA TARJETA DEBITO"-. Aparecen cuando llega la cartola, semanas
+  // después. No se inventa el monto: se avisa de que va a subir.
+  const h = (DATA.runway || {}).hueco;
+  const aviso = h
+    ? " Ojo: durante el mes solo se ven las compras que el banco notifica. " +
+      (h.confiable
+        ? "Cuando llegue la cartola suelen aparecer <b>" + clp(h.monto) + "</b> más."
+        : "Cuando llegue la cartola aparecen más movimientos &mdash;entre " +
+          clp(h.minimo) + " y " + clp(h.maximo) + " en los últimos meses&mdash;, " +
+          "así que este total va a subir.")
+    : "";
+  document.getElementById("rt-hero-accion").innerHTML =
+    "Llevas " + clp(o.gasto_mes) + " en " + o.n_movs + " movimientos. " +
+    (temprano
+      ? "A este ritmo cerrarías en <b>" + clp(proy) + "</b>, pero van pocos días: " +
+        "una compra grande mueve la proyección entera."
+      : "A este ritmo cerrarías en <b>" + clp(proy) + "</b>, contra un promedio de " +
+        clp(o.promedio_mes) + ".") + aviso;
+}
+
+function pintarHeroOF(k) {
+  const box = document.getElementById("of-hero");
+  if (!box || !k) return;
+
+  // La conclusión es CUÁNTO GASTASTE y cuánto te desviaste, no el flujo de la
+  // cuenta. "Cerró con $1.052.551 en contra" describe el saldo del mes y no
+  // dice si fue bueno o malo; el gasto contra sus dos referencias sí lo dice.
+  const c = DATA.cierre;
+  if (!c) { box.style.display = "none"; return; }
+  box.style.display = "";
+  const vp = c.vs_promedio || {}, va = c.vs_anterior || {};
+  box.className = "hero" + ((vp.monto || 0) <= 0 ? " ok" : "");
+  document.getElementById("of-hero-estado").textContent =
+    "Último cierre" + (k.mes_cerrado_label ? " · " + esc(k.mes_cerrado_label) : "");
+  document.getElementById("of-hero-frase").innerHTML =
+    "Gastaste <b>" + clp(c.gasto) + "</b>.";
+
+  // Dos referencias porque dicen cosas distintas: contra el promedio se ve la
+  // tendencia de fondo; contra el mes anterior, si mejora o empeora ahora.
+  const flecha = m => m > 0 ? "▲" : m < 0 ? "▼" : "=";
+  const linea = (d, etq, ref) => d
+    ? flecha(d.monto) + " <b>" + clp(Math.abs(d.monto)) + "</b> (" +
+      (d.pct > 0 ? "+" : "") + d.pct + "%) " + etq + " " + ref
+    : "";
+  // Ponerse al día no es gastar más.
+  //
+  // Agosto cerró 33% sobre julio y dentro iban 297.546 de tres mensualidades
+  // del colegio que no se pagaron en mayo, junio ni julio. La cifra del mes NO
+  // se corrige -esa plata salió de la cuenta en agosto y es lo que el runway
+  // tiene que financiar-, pero sin esta línea el mes se lee como un descontrol
+  // que no ocurrió.
+  //
+  // La comparación limpia le devuelve su cuota al mes anterior: descontarle el
+  // atraso solo a agosto lo mediría contra un julio al que le falta la suya.
+  let extra = "";
+  if (c.atrasado) {
+    const sa = c.solo_mes_vs_anterior;
+    extra = "<div class='hero-nota'>De ese total, <b>" + clp(c.atrasado) +
+      "</b> (" + c.pct_atrasado + "%) son cuotas atrasadas de meses anteriores. " +
+      "Solo lo del mes: <b>" + clp(c.solo_mes) + "</b>" +
+      (sa ? " — " + flecha(sa.monto) + " " + clp(Math.abs(sa.monto)) + " (" +
+            (sa.pct > 0 ? "+" : "") + sa.pct + "%) contra un mes anterior " +
+            "completo de " + clp(c.anterior_ajustado) : "") + ".</div>";
+  }
+  document.getElementById("of-hero-accion").innerHTML =
+    linea(vp, "que tu promedio de " + c.meses_promedio + " meses:", clp(c.promedio)) +
+    "<br>" +
+    linea(va, "que el mes anterior:", clp(c.gasto_anterior || 0)) +
+    extra;
+}
+
 function renderRT() {
   const o = DATA.on_time || {};
+  pintarHeroRT(o);
   if (!o.disponible) {
     document.getElementById("rt-feed").innerHTML =
       '<tr><td colspan="7" class="vacio">Aún no hay notificaciones procesadas.</td></tr>';
@@ -697,16 +1476,31 @@ function renderRT() {
     if (tipo === "cuotas" && !(m.medio === "Credito" && m.cuotas > 0)) return false;
     return true;
   });
-  const movs = mes === "todos" ? hist : hist.filter(m => m.mes === mes);
-
+  // Los meses anteriores se recortan al mismo día que lleva el mes en curso.
+  //
+  // Al elegir "Ago 26" se mostraba el mes COMPLETO -2.929.481- y el de arriba
+  // seguía siendo el día 2 de septiembre: se comparaba un mes entero contra
+  // dos días. Esta pestaña existe para responder "cómo voy", y para eso los
+  // períodos tienen que estar cortados a la misma altura. El mes completo vive
+  // en "Cierre mensual", que es la vista de meses cerrados.
+  const diaCorte = o.dia || 31;
+  const hastaElDia = m => {
+    const d = parseInt(String(m.fecha || "").slice(0, 2), 10);
+    return !d || d <= diaCorte;
+  };
   const esActual = mes === o.mes_actual;
+  const recorta = mes !== "todos" && !esActual;
+  const movs = mes === "todos" ? hist
+    : hist.filter(m => m.mes === mes && (!recorta || hastaElDia(m)));
+
   const total = movs.reduce((a,m) => a + m.monto, 0);
   document.getElementById("rt-gasto").textContent = clp(total);
   const filtrado = (tipo !== "todos" || tar !== "todas" || org !== "todos") ? " (filtrado)" : "";
   document.getElementById("rt-gasto-sub").textContent =
     (mes === "todos" ? "últimos " + meses.length + " meses"
      : esActual ? o.mes_label + " · día " + o.dia + " de " + o.dias_mes
-     : "mes cerrado " + (o.meses.find(x => x.v === mes) || {}).label) + filtrado;
+     : (o.meses.find(x => x.v === mes) || {}).label + " · hasta el día " +
+       diaCorte + ", igual que el mes en curso") + filtrado;
 
   const cardT = document.getElementById("rt-card-tend");
   if (esActual && o.esperado) {
@@ -741,7 +1535,7 @@ function renderRT() {
       datasets:[{ data:[cc.tc, cc.deb, cc.cuotas, cc.transf],
       backgroundColor:["#2a78d6","#00a0b0","#7c3aed","#eda100"],
       borderWidth:2, borderColor:"#fff" }] },
-    options:{ responsive:true, maintainAspectRatio:false, cutout:"58%",
+    options:{layout: {padding: {top: 16}},  responsive:true, maintainAspectRatio:false, cutout:"58%",
       plugins:{ legend:{position:"bottom", labels:{font:{size:11}}},
         tooltip:{ callbacks:{
           label:c => " " + c.label + ": " + clp(c.raw),
@@ -751,26 +1545,25 @@ function renderRT() {
 
   // Categorías: recalculadas sobre lo filtrado
   const agg = {};
-  movs.forEach(m => { agg[m.cat] = (agg[m.cat] || 0) + m.monto; });
+  movs.forEach(m => { agg[catDe(m)] = (agg[catDe(m)] || 0) + m.monto; });
   const cats = Object.entries(agg).sort((a,b) => b[1]-a[1]).slice(0, 10);
   chart("chRtCat", {
     type:"bar",
     data:{ labels:cats.map(c=>c[0]), datasets:[{ data:cats.map(c=>c[1]),
       backgroundColor:"rgba(245,158,11,.8)", borderRadius:4 }] },
-    options:{ indexAxis:"y", responsive:true, maintainAspectRatio:false,
+    options:{layout: {padding: {top: 16}},  indexAxis:"y", responsive:true, maintainAspectRatio:false,
       plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:c => " " + clp(c.raw) } } },
       scales:{ x:ejeY, y:{ ticks:{font:{size:10}} } } }
   });
 
-  // Evolutivos: siempre los 6 meses (respetan los otros filtros, no el de mes)
-  const etiquetas = meses.map(mesLabel);
-  document.getElementById("rt-tend-nota").textContent =
-    meses[meses.length-1] === o.mes_actual ? "· el último mes va en curso" : "";
-  chartApilado("chRtTendencia", etiquetas,
-    apilarPorMes(hist, meses, m => m.medio || "Otro", ["Credito","Debito","Transferencia"], COL_MEDIO)
-      .map(d => Object.assign(d, {label: NOM_MEDIO[d.label] || d.label})));
-  chartApilado("chRtCatMes", etiquetas,
-    apilarPorMes(hist, meses, m => m.cat || "Otros", TOP_CATS));
+  // Los dos evolutivos de seis meses que vivian aqui se quitaron: eran
+  // historia dentro de la pestaña del mes en curso, y ya estan en "Cierre
+  // mensual" -uno tal cual, el otro cubierto por "Contado vs Cuotas"-.
+  // Sus referencias quedaban apuntando a elementos inexistentes y hacian
+  // reventar renderRT() entero, dejando en blanco los graficos que si estan.
+
+  pintarUSD(movs, esActual, o);
+  pintarComparativo(o);
 
   pintarTabla({
     filas: ordenarBuscar(movs, "rt"), cuerpo: "rt-feed", contador: "rt-n",
@@ -778,16 +1571,634 @@ function renderRT() {
     fila: m => {
       const esCuotas = m.medio === "Credito" && m.cuotas > 0;
       return "<td>" + m.fecha + (m.hora ? " <span style='color:var(--muted)'>" + m.hora + "</span>" : "") + "</td>" +
-        "<td style='font-weight:600'>" + esc(m.desc) + "</td>" +
+        "<td style='font-weight:600'>" + esc(m.desc) +
+          (m.usd ? " <span class='badge b-usd'>US$ " + m.usd.toFixed(2) + "</span>" : "") + "</td>" +
         "<td><span class='tag-cat'>" + esc(m.cat) + "</span></td>" +
         "<td>" + esc(m.medio) + "</td>" +
         "<td>" + (m.tarjeta ? "••" + esc(m.tarjeta) : "—") + "</td>" +
         "<td>" + (m.medio !== "Credito" ? "—" :
           (esCuotas ? "<span class='badge b-cuotas'>" + m.cuotas + " cuotas</span>"
                     : "<span class='badge b-contado'>Contado</span>")) + "</td>" +
-        "<td class='num' style='font-weight:600'>" + clp(m.monto) + "</td>";
+        // El "≈" avisa que ese peso salió de una tasa declarada, no del banco
+        "<td class='num' style='font-weight:600'>" + (m.usd ? "≈ " : "") + clp(m.monto) + "</td>";
     }
   });
+}
+
+// ── Cuánto alcanza el dinero ───────────────────────────────────────
+// La cifra que se mira todos los días. Se construye sobre dos reglas: el gasto
+// se mide por consumo -no por lo que sale de la cuenta, que llega en bloques- y
+// un ingreso que se acaba no se proyecta hacia adelante.
+const MES_CORTO = ["ene","feb","mar","abr","may","jun",
+                   "jul","ago","sep","oct","nov","dic"];
+function mesCorto(clave) {          // "2026-08" -> "agosto"
+  const LARGO = ["enero","febrero","marzo","abril","mayo","junio","julio",
+                 "agosto","septiembre","octubre","noviembre","diciembre"];
+  const n = parseInt(String(clave).slice(5, 7), 10);
+  return (n >= 1 && n <= 12) ? LARGO[n - 1] : String(clave);
+}
+function mesEnCurso() {
+  const h = new Date();
+  return h.getFullYear() + "-" + String(h.getMonth() + 1).padStart(2, "0");
+}
+
+// Cuánto se gasta al mes, medido de cuatro maneras.
+//
+// Presentar una sola cifra es lo que genera desconfianza: el tablero decía
+// $4.592.780 cuando los dos últimos meses habían sido $2.947.881 y $3.681.328.
+// Ninguno estaba mal — la mediana de cuatro meses arrastraba una vasectomía y
+// un outplacement. Verlas juntas dice si el número es confiable.
+let ESC_SEL = null;
+
+function pintarEscenarios(r) {
+  const escs = r.gasto_escenarios || [];
+  const chips = document.getElementById("rw-esc-chips");
+  const panel = document.getElementById("rw-esc-panel");
+  if (!chips || !panel) return;
+  if (!escs.length) { chips.innerHTML = panel.innerHTML = ""; return; }
+
+  if (ESC_SEL === null) {
+    const enUso = escs.findIndex(e => e.actual);
+    ESC_SEL = enUso >= 0 ? enUso : escs.length - 1;
+  }
+
+  chips.innerHTML = escs.map((e, i) =>
+    "<button class='chip" + (i === ESC_SEL ? " on" : "") + "' data-esc='" + i + "'>" +
+    esc(e.etiqueta) + "</button>").join("");
+  chips.querySelectorAll("[data-esc]").forEach(b => b.onclick = () => {
+    ESC_SEL = +b.dataset.esc;
+    renderRW();
+  });
+
+  panel.innerHTML = escs.map((e, i) =>
+    "<div class='esc-caja" + (i === ESC_SEL ? " sel" : "") + "'>" +
+    "<div class='esc-tit'>" + esc(e.etiqueta) + "</div>" +
+    "<div class='esc-gasto'>" + clp(e.burn) + "</div>" +
+    "<div class='esc-meses'>alcanza <b>" + (e.meses == null ? "—" : e.meses + " meses") +
+    "</b>" + (e.fecha ? " · hasta " + esc(e.fecha) : "") + "</div>" +
+    "</div>").join("");
+
+  // Qué tan lejos están entre sí: es la medida de confianza del número
+  const vals = escs.map(e => e.burn).filter(v => v > 0);
+  const min = Math.min(...vals), max = Math.max(...vals);
+  const disp = max ? (max - min) / max : 0;
+  const meses = escs.map(e => e.meses).filter(v => v != null);
+  document.getElementById("rw-esc-nota").innerHTML =
+    "<span class='esc-rango' style='display:block'>" +
+    (disp < 0.25
+      ? "Las cuatro medidas van de <b>" + clp(min) + "</b> a <b>" + clp(max) +
+        "</b>. Están cerca, así que la proyección es confiable: entre <b>" +
+        Math.min(...meses) + "</b> y <b>" + Math.max(...meses) + " meses</b>."
+      : "Las medidas van de <b>" + clp(min) + "</b> a <b>" + clp(max) +
+        "</b>, una diferencia grande. Suele significar que algún mes trae un " +
+        "gasto fuera de lo común: mira el escenario <i>sin gastos únicos</i>.") +
+    "</span>";
+}
+
+// Lo que el sistema sospecha y no puede confirmar solo.
+//
+// Cinco cifras estaban mal y las cinco salieron de preguntarle al usuario en
+// una conversación. Todas eran detectables por su patrón; lo que el sistema no
+// puede saber es qué significan. Levanta la mano y deja decidir.
+function pintarAnomalias(r) {
+  const a = r.anomalias || [];
+  const card = document.getElementById("rw-card-anomalias");
+  if (!card) return;
+  if (!a.length) { card.style.display = "none"; return; }
+  card.style.display = "";
+  document.getElementById("rw-anomalias").innerHTML = a.map(x =>
+    "<div class='anom anom-" + esc(x.confianza) + "'>" +
+    "<div class='anom-cab'><span class='anom-tit'>" + esc(x.titulo) + "</span>" +
+    "<span class='anom-conf'>" + (x.confianza === "alta" ? "muy probable"
+      : "revisar") + "</span></div>" +
+    "<div class='anom-det'>" + esc(x.detalle) + "</div>" +
+    (x.impacto ? "<div class='anom-imp'>" + esc(x.impacto) + "</div>" : "") +
+    (x.config ? "<pre class='anom-cfg'>" + esc(x.config) + "</pre>" : "") +
+    "</div>").join("");
+}
+
+// Lo recomendado y lo que se hizo.
+//
+// El tablero decía "rescata 3.750.000 antes del 10" y ahí terminaba. Nadie
+// comprobaba el 11 si pasó, y al mes siguiente repetía el aviso como si fuera
+// nuevo. La verificación mira la cuenta: un rescate deja un abono grande.
+function pintarSeguimiento(r) {
+  const sg = r.seguimiento;
+  const card = document.getElementById("rw-card-seguimiento");
+  if (!card) return;
+  const hay = sg && ((sg.pendientes || []).length || (sg.vencidas || []).length ||
+                     sg.cumplidas);
+  if (!hay) { card.style.display = "none"; return; }
+  card.style.display = "";
+
+  const fila = (txt, estado, color) =>
+    "<div class='seg seg-" + estado + "'><span class='seg-punto' style='background:" +
+    color + "'></span><span>" + txt + "</span></div>";
+
+  let html = "";
+  for (const x of (sg.vencidas || []))
+    html += fila("Quedó sin hacer: rescatar <b>" + clp(x.monto) + "</b> antes del " +
+                 esc(x.antes_de) + ". No aparece en la cuenta.", "mal", "var(--red)");
+  for (const x of (sg.pendientes || []))
+    html += fila("Pendiente: rescatar <b>" + clp(x.monto) + "</b> antes del " +
+                 esc(x.antes_de) + ".", "pend", "var(--amber)");
+  if (sg.cumplidas)
+    html += fila("<b>" + sg.cumplidas + "</b> recomendaci" +
+                 (sg.cumplidas === 1 ? "ón cumplida" : "ones cumplidas") +
+                 (sg.tasa != null ? " · " + sg.tasa + "% de las que vencieron" : ""),
+                 "ok", "var(--green)");
+  document.getElementById("rw-seguimiento").innerHTML = html;
+}
+
+// Cada cuánto conviene sacar plata del fondo.
+//
+// Es la decisión que reemplaza a "reordenar los pagos", que se analizó y no
+// aporta nada mientras el mes cierre en déficit. Aquí el intercambio sí es
+// real y medible: menos trámites contra menos rentabilidad.
+function pintarRescate(r) {
+  const x = r.rescate;
+  const card = document.getElementById("rw-card-rescate");
+  if (!card) return;
+  if (!x || !x.opciones || !x.opciones.length) { card.style.display = "none"; return; }
+  card.style.display = "";
+
+  document.getElementById("rw-rescate").innerHTML =
+    "<table><thead><tr><th>Cada cuánto</th><th class='num'>Cuánto sacar</th>" +
+    "<th class='num'>Al año</th><th class='num'>Te cuesta</th></tr></thead><tbody>" +
+    x.opciones.map((o, i) =>
+      "<tr" + (i === 0 ? " style='background:rgba(16,185,129,.08)'" : "") + ">" +
+      "<td style='font-weight:600'>" + (o.cada === 1 ? "Todos los meses"
+        : "Cada " + o.cada + " meses") + "</td>" +
+      "<td class='num'>" + clp(o.monto) + "</td>" +
+      "<td class='num'>" + o.al_anno + " veces</td>" +
+      "<td class='num'>" + (o.sobrecosto ? clp(o.sobrecosto) + "/año" : "—") +
+      "</td></tr>").join("") + "</tbody></table>";
+
+  const dia = x.opciones[0].dia;
+  document.getElementById("rw-rescate-nota").innerHTML =
+    "Tu déficit es <b>" + clp(x.deficit) + " al mes</b> y la inversión cubre " +
+    "<b>" + x.meses_cubiertos + " meses</b> de ese ritmo. Sacar de a poco deja " +
+    "más plata rindiendo; sacar de a mucho ahorra trámites y te cuesta lo que " +
+    "dice la última columna. <b>Hazlo el día " + dia + "</b>, dos días después " +
+    "de que entra la plata: una fecha fija se cumple, reaccionar a una alarma " +
+    "se posterga.";
+}
+
+// Dónde se va la plata, el goteo y qué hacer al respecto.
+//
+// El orden importa: primero se ve el hecho (dónde va), después el patrón que
+// no se veía solo (el goteo), y recién al final la sugerencia. Al revés se
+// lee como un sermón y se cierra la pestaña.
+const ET = { "recurrente":"et-rec", "ocasional":"et-oca", "único":"et-uni", "fijo":"et-fij" };
+
+function pintarOptimizar(r) {
+  const o = r.optimizar || {};
+
+  // --- dónde se va la plata ---
+  const com = (o.comercios || []).slice(0, 16);
+  const host = document.getElementById("rw-comercios");
+  if (host) {
+    const tope = com.length ? Math.max(...com.map(c => c.al_mes)) : 1;
+    host.innerHTML = com.map(c => {
+      // Lo que no es una decisión de hoy se pinta apagado, para que la vista
+      // dirija el ojo a lo que sí se puede cambiar.
+      const pasivo = (c.tipo === "único" || c.tipo === "fijo");
+      const color = pasivo ? "var(--border)"
+                  : c.tipo === "ocasional" ? "#fbbf24" : "#2563eb";
+      const ancho = Math.max(2, Math.round(c.al_mes / tope * 100));
+      return "<div class='cm" + (pasivo ? " pasivo" : "") + "'>" +
+        "<div class='cm-nom'>" + esc(c.comercio.toLowerCase()) + "</div>" +
+        "<div class='cm-val'>" + clp(c.al_mes) + "</div>" +
+        "<div class='cm-barra'><i style='width:" + ancho + "%;background:" + color + "'></i></div>" +
+        "<div class='cm-meta'>" +
+          "<span class='et " + (ET[c.tipo] || "et-uni") + "'>" + esc(c.tipo) + "</span> · " +
+          c.veces + (c.veces === 1 ? " compra" : " compras") +
+          " · apareció en " + c.meses + " de " + c.de + " meses · " +
+          "ticket " + clp(c.ticket) +
+        "</div></div>";
+    }).join("");
+  }
+
+  // --- el goteo ---
+  const g = o.goteo || {};
+  const cardG = document.getElementById("rw-card-goteo");
+  if (cardG) {
+    if (!g.n) { cardG.style.display = "none"; }
+    else {
+      cardG.style.display = "";
+      const compras = (g.comercios || []).reduce((a, c) => a + c.veces, 0);
+      document.getElementById("rw-goteo-monto").textContent = clp(g.al_mes) + " al mes";
+      document.getElementById("rw-goteo-sub").textContent =
+        g.n + " comercios · " + compras + " compras en el período · " +
+        "ticket promedio " + clp(Math.round(g.total / Math.max(1, compras)));
+      document.getElementById("rw-goteo-lista").innerHTML =
+        (g.comercios || []).slice(0, 10).map(c =>
+          "<div class='goteo-fila'><div>" + esc(c.comercio.toLowerCase()) +
+          "<div class='goteo-tick'>" + c.veces + " veces · " + clp(c.ticket) + " cada vez</div></div>" +
+          "<b>" + clp(c.al_mes) + "/mes</b></div>").join("");
+    }
+  }
+
+  // --- las palancas ---
+  const pal = o.palancas || [];
+  const hp = document.getElementById("rw-palancas");
+  if (hp) {
+    hp.innerHTML = pal.map(p =>
+      "<div class='palanca'>" +
+        "<div class='palanca-cab'><span class='palanca-tit'>" + esc(p.titulo) + "</span>" +
+        "<span class='palanca-gana'>" + esc(p.gana || ("+" + p.meses + " meses")) + "</span></div>" +
+        "<div class='palanca-cifras'>" + esc(p.detalle) + " · hoy <b>" + clp(p.hoy) +
+        "</b> al mes · podrías ahorrar <b>" + clp(p.ahorro) + "</b> mensuales</div>" +
+        "<div class='palanca-como'>" + esc(p.como) + "</div></div>").join("");
+  }
+  const ht = document.getElementById("rw-palancas-total");
+  if (ht) {
+    ht.innerHTML = pal.length
+      ? "Haciéndolo todo: <b>" + clp(o.ahorro_total) + " al mes</b>, que son <b>" +
+        o.meses_total + " meses más</b> de sobrevivencia."
+      : "";
+  }
+}
+
+function renderRW() {
+  const r = DATA.runway || {};
+  if (!r.disponible) {
+    document.getElementById("rw-meses").textContent = "—";
+    document.getElementById("rw-hasta").textContent = "faltan datos para calcularlo";
+    return;
+  }
+
+  // Lo primero: ¿hay que mover plata de la inversión a la cuenta?
+  // Va arriba de todo porque es lo accionable. Entre enero y marzo la cuenta
+  // quedó en negativo tres meses seguidos teniendo 41 millones invertidos.
+  // La proyección del mes manda sobre el aviso del próximo pago: mirar solo el
+  // cargo siguiente daba un falso tranquilo cuando lo grande venía el día 26.
+  // La alarma sigue al escenario elegido. Antes no: al elegir "últimos 3
+  // meses" el runway pasaba de once a catorce meses y el aviso seguía pidiendo
+  // rescatar 3.700.000, calculado con otro supuesto. El número más accionable
+  // del tablero quedaba contradiciendo al que estaba justo debajo.
+  pintarEscenarios(r);
+  const eSel = (r.gasto_escenarios || [])[ESC_SEL] || null;
+  const mes = (eSel && eSel.alarma) ? eSel.alarma : (r.mes || {});
+  const al = mes.alarma ? {
+    nivel: mes.nivel,
+    mensaje: "Con " + clp(r.saldo_cuenta) + " en la cuenta, el mes cierra en " +
+      clp(mes.minimo.saldo) + " el " + mes.minimo.fecha + ". Rescata " +
+      clp(mes.rescatar) + " de la inversión, pidiéndolo antes del " +
+      mes.pedir_antes_de + " para que alcance a llegar (el saldo baja del mínimo " +
+      "el " + mes.dia_critico + ").",
+    detalle: (r.alerta || {}).detalle,
+  } : (r.alerta || {});
+  const box = document.getElementById("rw-alerta");
+  if (al.mensaje) {
+    box.style.display = "";
+    const color = al.nivel === "urgente" ? "var(--red)"
+      : al.nivel === "atencion" ? "var(--amber)"
+      : al.nivel === "justo" ? "var(--amber)" : "var(--green)";
+    box.style.borderLeftColor = color;
+    document.getElementById("rw-alerta-titulo").textContent =
+      al.nivel === "urgente" ? "Hay que rescatar de la inversión, hoy"
+      : al.nivel === "atencion" ? "Este mes vas a necesitar rescatar"
+      : al.nivel === "justo" ? "Alcanza, pero sin margen"
+      : "La cuenta cubre el mes";
+    const msg = document.getElementById("rw-alerta-msg");
+    msg.textContent = al.mensaje;
+    msg.style.color = al.nivel === "urgente" ? "var(--red)" : "var(--tinta)";
+    document.getElementById("rw-alerta-detalle").innerHTML = (al.detalle || []).map(d =>
+      "<tr><td>" + esc(d.fecha) + "</td><td>" + esc(d.concepto) +
+      "</td><td class='num'>" + clp(d.monto) + "</td></tr>").join("");
+  } else {
+    box.style.display = "none";
+  }
+
+  // El escenario elegido manda sobre meses, fecha y serie. Si no hay ninguno,
+  // se cae a lo que trae el runway, que es como funcionaba antes.
+  const vista = eSel
+    ? { meses: eSel.meses, fecha: eSel.fecha, burn: eSel.burn,
+        meses_sin_hogar: eSel.meses_sin_hogar, serie: eSel.serie }
+    : r;
+
+  // El titular: cómo estás y qué hacer, en una frase.
+  //
+  // Antes había que leer "Alcanza para 11 meses" en una tarjeta, buscar la
+  // alarma en otra y cruzarlas mentalmente para saber si el mes está resuelto.
+  const heroBox = document.getElementById("rw-hero");
+  const mesesTxt = vista.meses === null ? "sin límite"
+    : vista.meses + (vista.meses === 1 ? " mes" : " meses");
+  const holgado = vista.meses === null || vista.meses > 12;
+  heroBox.className = "hero" + (holgado ? " ok" : "");
+  document.getElementById("rw-hero-estado").textContent =
+    vista.meses === null ? "Tu flujo alcanza"
+    : vista.meses <= 6 ? "Situación apretada"
+    : vista.meses <= 12 ? "Con margen, pero el reloj corre" : "Con holgura";
+  document.getElementById("rw-hero-frase").innerHTML =
+    "Te alcanza para <b>" + mesesTxt + "</b>" +
+    (vista.fecha ? ", hasta " + esc(vista.fecha) : "") + ".";
+  document.getElementById("rw-hero-accion").innerHTML = mes.alarma
+    ? "Este mes necesitas rescatar <b>" + clp(mes.rescatar) + "</b> de la " +
+      "inversión, pidiéndolo antes del <b>" + esc(mes.pedir_antes_de || "") + "</b>."
+    : "Este mes no necesitas mover plata de la inversión.";
+
+  // El número principal: el escenario prudente, sin contar la ayuda de terceros
+  const card = document.getElementById("rw-card-meses");
+  document.getElementById("rw-meses").textContent =
+    vista.meses === null ? "sin límite"
+      : vista.meses + (vista.meses === 1 ? " mes" : " meses");
+  document.getElementById("rw-hasta").textContent = vista.fecha
+    ? "hasta " + vista.fecha + (vista.meses_sin_hogar && vista.meses_sin_hogar !== vista.meses
+        ? " · " + vista.meses_sin_hogar + " sin el ingreso de las terapias" : "")
+    : "el flujo alcanza sin consumir fondos";
+  // Menos de 6 meses es zona de decisión, no de observación. El color del
+  // borde solo pasaba desapercibido: ahora va también la palabra.
+  const sem = vista.meses === null ? ["var(--green)", "holgado"]
+    : vista.meses <= 6 ? ["var(--red)", "crítico"]
+    : vista.meses <= 12 ? ["var(--amber)", "atención"] : ["var(--green)", "estable"];
+  card.style.borderTopColor = sem[0];
+  const lbl = card.querySelector(".kpi-label");
+  if (lbl) lbl.innerHTML = "Alcanza para <span style='color:" + sem[0] +
+    ";font-weight:800'>· " + sem[1] + "</span>";
+
+  // La cifra proyectada NO es lo que se gastó en ningún mes: es la medida
+  // elegida arriba. Decía "Gasto del mes" y mostraba $4.420.585 cuando agosto
+  // había sido $3.383.467, y no había forma de saber de dónde salía el número.
+  document.getElementById("rw-burn").textContent = clp(vista.burn);
+  const escAct = (r.gasto_escenarios || [])[ESC_SEL];
+  const ultimoReal = (() => {
+    const ms = Object.keys(r.gastos_mes || {}).filter(m => m < mesEnCurso()).sort();
+    return ms.length ? { mes: ms[ms.length - 1], monto: r.gastos_mes[ms[ms.length - 1]] } : null;
+  })();
+  document.getElementById("rw-tendencia").innerHTML =
+    (escAct ? "según <b>" + esc(escAct.etiqueta.toLowerCase()) + "</b>" : "") +
+    (ultimoReal ? " · " + mesCorto(ultimoReal.mes) + " fueron " + clp(ultimoReal.monto) : "");
+  const t = r.tendencia || {};
+
+  document.getElementById("rw-fondos").textContent = clp(r.fondos);
+  document.getElementById("rw-fondos-sub").textContent =
+    clp(r.saldo_cuenta) + " en cuenta · " + clp(r.inversiones) + " invertido";
+
+  // Lo decidible de verdad, no el residuo. El residuo metía el supermercado y
+  // los remedios entre las decisiones libres y casi doblaba el número.
+  const gr = r.grupos || {};
+  document.getElementById("rw-discrecional").textContent =
+    clp(r.decidible != null ? r.decidible : r.discrecional);
+  document.getElementById("rw-comprometido").textContent =
+    clp(r.comprometido) + " comprometido · " + clp(gr.vivir || 0) + " para vivir";
+
+  // Los cuatro grupos, y dentro de cada uno las categorías que lo forman.
+  const FILAS_GRUPO = [
+    ["comprometido", "Comprometido", "Fecha y monto fijos. Sale igual.", r.comprometido],
+    ["vivir", "Vivir", "Pasa siempre. El monto se puede mover, el gasto no.", gr.vivir],
+    ["decidible", "Decidible", "Pasa siempre y sí se puede recortar.", gr.decidible],
+    ["esporadico", "Esporádico", "No pasa todos los meses. Repartido entre ellos.", gr.esporadico],
+  ];
+  const totalGasto = FILAS_GRUPO.reduce((a, f) => a + (f[3] || 0), 0);
+  document.getElementById("rw-grupos").innerHTML = FILAS_GRUPO.map(f =>
+    "<tr" + (f[0] === "decidible" ? " style='background:rgba(124,58,237,.07)'" : "") + ">" +
+    "<td style='font-weight:600'>" + f[1] + "</td>" +
+    "<td style='color:var(--muted);font-size:.82rem'>" + f[2] + "</td>" +
+    "<td class='num'>" + clp(f[3] || 0) + "</td></tr>").join("") +
+    "<tr><td style='font-weight:700'>Total</td><td></td>" +
+    "<td class='num' style='font-weight:700'>" + clp(totalGasto) + "</td></tr>";
+
+  // El detalle por categoría dentro de cada grupo, para poder discutirlo
+  const rep = r.reparto || [];
+  document.getElementById("rw-reparto-detalle").innerHTML =
+    ["decidible", "vivir", "esporadico"].map(g => {
+      const filas = rep.filter(x => x.grupo === g);
+      if (!filas.length) return "";
+      const suma = filas.reduce((a, x) => a + x.monto, 0);
+      return "<div style='margin-bottom:14px'>" +
+        "<div style='font-weight:700;font-size:.82rem;text-transform:uppercase;" +
+        "letter-spacing:.04em;margin-bottom:6px'>" + g + " · " + clp(suma) + "</div>" +
+        "<div style='font-size:.82rem;line-height:1.7'>" +
+        filas.map(x => "<span style='display:inline-block;margin-right:14px' " +
+          "title='Apareció en " + x.meses + " de los últimos " + x.de + " meses'>" +
+          esc(x.categoria) + " <b>" + clp(x.monto) + "</b>" +
+          "<span style='color:var(--muted)'> en " + x.meses + " de " + x.de +
+          " meses</span></span>").join("") +
+        "</div></div>";
+    }).join("");
+
+  // De qué está hecho lo comprometido. Verlo abierto es lo que permite
+  // discutirlo: un número solo no se puede negociar con nadie.
+  const det = r.comprometido_detalle || [];
+  document.getElementById("rw-comprometido-detalle").innerHTML =
+    det.map(d => "<tr><td style='font-weight:600'>" + esc(d.concepto) + "</td>" +
+                 "<td class='num'>" + clp(d.monto) + "</td></tr>").join("") +
+    (det.length ? "<tr><td style='font-weight:700'>Total</td><td class='num' " +
+      "style='font-weight:700'>" + clp(r.comprometido) + "</td></tr>" : "");
+
+  // La carga de cuotas no es para siempre: baja sola. Decirlo cambia la
+  // lectura de todo lo demás.
+  const cuo = r.cuotas_futuras || [];
+  const notaCuo = document.getElementById("rw-cuotas-nota");
+  if (cuo.length >= 3) {
+    const primera = cuo[0], ultima = cuo[cuo.length - 1];
+    const baja = primera.monto - ultima.monto;
+    notaCuo.innerHTML = baja > 0
+      ? "Tus cuotas de tarjeta van bajando solas: de <b>" + clp(primera.monto) +
+        "</b> en " + esc(primera.mes) + " a <b>" + clp(ultima.monto) + "</b> en " +
+        esc(ultima.mes) + ". Son " + clp(baja) + " al mes que se liberan sin que " +
+        "hagas nada, <i>siempre que no tomes cuotas nuevas</i>."
+      : "";
+  } else { notaCuo.textContent = ""; }
+
+  pintarSeguimiento(r);
+  pintarRescate(r);
+  pintarAnomalias(r);
+  pintarOptimizar(r);
+
+  // Cómo baja el saldo
+  const serie = vista.serie || r.serie || [];
+  document.getElementById("rw-nota-serie").textContent =
+    "Suponiendo " + clp(vista.burn) + " de gasto al mes" +
+    (r.temporal && r.temporal.pagos
+      ? " y " + r.temporal.pagos + " pagos de " + clp(r.temporal.monto) +
+        " del " + (r.temporal.nombre || "ingreso temporal") + "."
+      : ".");
+  chart("chRwSerie", {
+    type: "line",
+    data: {
+      labels: serie.map(s => mesLabel(s.mes)),
+      datasets: [{
+        data: serie.map(s => s.saldo),
+        borderColor: "#1e3a5f", backgroundColor: "rgba(30,58,95,.10)",
+        fill: true, tension: .25, pointRadius: 0,
+        segment: {borderColor: c => c.p1.parsed.y < 0 ? "#e34948" : "#1e3a5f"},
+      }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {legend: {display: false},
+        tooltip: {callbacks: {label: c => " Quedarían " + clp(c.raw)}}},
+      scales: {x: {grid: {display: false}}, y: ejeY},
+    },
+  });
+
+  // La tabla de recortes por porcentaje se quitó: repetía lo que "Qué puedes
+  // hacer" ya dice mucho mejor -palancas concretas en vez de un 15% abstracto-
+  // y encima quedaba con el gasto viejo, sin seguir al escenario elegido.
+
+  // De dónde salen los fondos
+  const viejo = r.inversiones_dias !== null && r.inversiones_dias > 45;
+  document.getElementById("rw-fuentes").innerHTML =
+    "<tr><td>Cuenta corriente</td><td class='num'>" + clp(r.saldo_cuenta) +
+      "</td><td>" + esc(r.saldo_al || "") + "</td></tr>" +
+    "<tr><td>Inversiones</td><td class='num'>" + clp(r.inversiones) +
+      "</td><td" + (viejo ? " style='color:var(--red)'" : "") + ">" +
+      esc(r.inversiones_al || "—") +
+      (r.inversiones_dias !== null ? " (" + r.inversiones_dias + " días)" : "") +
+      "</td></tr>";
+  document.getElementById("rw-aviso-viejo").textContent = viejo
+    ? "El saldo de las inversiones tiene más de 45 días. Actualízalo en la configuración para que este cálculo siga sirviendo."
+    : "";
+
+  // Gasto histórico
+  const gm = r.gastos_mes || {};
+  const meses = Object.keys(gm).sort();
+  chart("chRwGasto", {
+    type: "bar",
+    data: {labels: meses.map(mesLabel),
+      datasets: [{data: meses.map(m => gm[m]),
+        backgroundColor: meses.map(m =>
+          gm[m] > r.burn ? "rgba(227,73,72,.75)" : "rgba(27,175,122,.75)"),
+        borderRadius: 4}]},
+    options: {layout: {padding: {top: 16}}, responsive: true, maintainAspectRatio: false,
+      plugins: {legend: {display: false},
+        tooltip: {callbacks: {label: c => " " + clp(c.raw)}}},
+      scales: {x: {grid: {display: false}}, y: ejeY}},
+  });
+
+  // Lo que hay que tener presente
+  const notas = [];
+  if (r.temporal && r.temporal.pagos) {
+    notas.push("Quedan <b>" + r.temporal.pagos + " pagos</b> de " + clp(r.temporal.monto) +
+      " del " + esc(r.temporal.nombre || "ingreso temporal") +
+      ". Después de eso, no hay ingreso comprometido.");
+  }
+  if (r.hogar) {
+    notas.push("El número de arriba <b>incluye</b> " + clp(r.hogar) + " al mes de " +
+      esc(r.hogar_nombre || "ingreso del hogar") + ". Sin ese ingreso el plazo baja a <b>" +
+      r.meses_sin_hogar + " meses</b> (" + esc(r.fecha_sin_hogar || "") + "): son " +
+      (r.meses - r.meses_sin_hogar) + " meses de diferencia.");
+  }
+  notas.push("De tu gasto mensual, <b>" + clp(r.comprometido) + " está decidido</b> antes de " +
+    "que empiece el mes: dividendo, servicios básicos y cuotas ya tomadas. " +
+    (gr.vivir
+      ? "Otros " + clp(gr.vivir) + " son el vivir de todos los días —comida, " +
+        "remedios, bencina—: el monto se puede mover, el gasto no. " +
+        "Sobre lo que puedes decidir de verdad son <b>" + clp(r.decidible) + "</b>."
+      : "El margen real de maniobra son " + clp(r.discrecional) + "."));
+  if (t.direccion === "baja") {
+    notas.push("Tu gasto viene <b>bajando</b> " + Math.abs(t.pct) + "% respecto de los meses " +
+      "anteriores. Si la tendencia se sostiene, el plazo real será mayor que el que muestra arriba.");
+  }
+  document.getElementById("rw-notas").innerHTML =
+    "<ul style='margin:0;padding-left:20px;line-height:1.7'>" +
+    notas.map(n => "<li>" + n + "</li>").join("") + "</ul>";
+}
+
+// ── Cuentas que se pagan juntas ────────────────────────────────────
+// Doce cuentas en una sola transferencia: el dividendo hipotecario, la luz, el
+// gas, el agua. Sin abrirlo, el gasto fijo más grande queda escondido dentro de
+// una línea que dice "TRANSFER A FINTOC SPA".
+function pintarServicios() {
+  const s = (DATA.servicios || {});
+  const card = document.getElementById("of-card-serv");
+  if (!card) return;
+  if (!s.disponible || !s.meses || !s.meses.length) { card.style.display = "none"; return; }
+  card.style.display = "";
+
+  const dsServ = s.series.map((serie, i) => ({
+    label: serie.cat,
+    data: serie.values,
+    // El dividendo es más de la mitad del total: se lleva el color fuerte
+    backgroundColor: serie.cat === "Dividendo hipotecario"
+      ? "#1e3a5f" : PALETA[i % PALETA.length],
+  }));
+  chartApilado("chOfServicios", s.labels, dsServ);
+  pintarTablaApilada("tabla-of-serv", dsServ, s.labels, "Cuenta");
+
+  const total = (s.detalle || []).reduce((a, d) => a + d.monto, 0);
+  document.getElementById("of-serv-mes").textContent =
+    s.ultimo_label + " · " + clp(total) + " en " + (s.detalle || []).length + " cuentas";
+  document.getElementById("of-serv-tabla").innerHTML = (s.detalle || []).map(d =>
+    "<tr><td style='font-weight:600'>" + esc(d.empresa) + "</td>" +
+    "<td><span class='tag-cat'>" + esc(d.cat) + "</span></td>" +
+    "<td class='num'>" + clp(d.monto) + "</td></tr>").join("");
+}
+
+// ── Compras en el extranjero ───────────────────────────────────────
+// Se muestran aparte porque son cobros en dólares -casi todos suscripciones
+// que se renuevan solas- y el peso es una estimación hasta que llega el estado
+// de cuenta. Ya están sumados en el gasto del mes: esto es el desglose.
+function pintarUSD(movs, esActual, o) {
+  const card = document.getElementById("rt-card-usd");
+  const enUSD = movs.filter(m => m.usd);
+  if (!enUSD.length) { card.style.display = "none"; return; }
+  card.style.display = "";
+
+  const totUSD = enUSD.reduce((a, m) => a + m.usd, 0);
+  const totCLP = enUSD.reduce((a, m) => a + m.monto, 0);
+  const gasto  = movs.reduce((a, m) => a + m.monto, 0);
+  document.getElementById("rt-usd-total").textContent = "US$ " + totUSD.toFixed(2);
+  document.getElementById("rt-usd-sub").textContent =
+    "≈ " + clp(totCLP) + " · " + (gasto ? Math.round(100 * totCLP / gasto) : 0) +
+    "% del gasto · " + enUSD.length + (enUSD.length === 1 ? " compra" : " compras");
+
+  // Un comercio por fila: lo que se repite mes a mes es lo que conviene revisar
+  const agg = {};
+  enUSD.forEach(m => {
+    const k = m.desc;
+    (agg[k] = agg[k] || {usd:0, clp:0, n:0, conf:0});
+    agg[k].usd += m.usd; agg[k].clp += m.monto; agg[k].n += 1;
+    if (m.confirmado) agg[k].conf += 1;
+  });
+  const filas = Object.entries(agg).sort((a, b) => b[1].usd - a[1].usd);
+  // "Facturada" = el estado de cuenta ya la trajo, así que ese peso es el del
+  // banco. Lo demás sigue siendo estimación, y conviene que se note.
+  document.getElementById("rt-usd-tabla").innerHTML = filas.map(([d, v]) =>
+    "<tr><td style='font-weight:600'>" + esc(d) +
+      (v.conf === v.n ? " <span class='badge b-contado'>facturada</span>"
+       : v.conf ? " <span class='badge b-contado'>" + v.conf + " de " + v.n + " facturadas</span>"
+       : " <span class='badge b-pend'>por facturar</span>") + "</td>" +
+    "<td class='num'>" + (v.n > 1 ? v.n + "×" : "") + "</td>" +
+    "<td class='num'>US$ " + v.usd.toFixed(2) + "</td>" +
+    "<td class='num' style='color:var(--muted)'>" + (v.conf === v.n ? "" : "≈ ") + clp(v.clp) + "</td></tr>").join("");
+}
+
+// ── Mismo tramo del mes, contra los meses anteriores ───────────────
+// Comparar un mes a medias contra meses completos siempre dice "vas bien".
+// Recortando todos los meses al mismo día la comparación se vuelve honesta.
+function pintarComparativo(o) {
+  const c = o.comparativo || {};
+  const card = document.getElementById("rt-card-comp");
+  if (!c.disponible || c.meses.length < 2) { card.style.display = "none"; return; }
+  card.style.display = "";
+  document.getElementById("rt-comp-nota").textContent =
+    "· del día 1 al " + c.dia + " de cada mes";
+
+  const cats = c.categorias;
+  const datasets = c.series.map((s, i) => ({
+    label: s.cat,
+    data: s.values,
+    backgroundColor: s.cat === CAT_USD ? "#00a0b0" : PALETA[i % PALETA.length],
+  }));
+  chartApilado("chRtComp", c.labels, datasets);
+  // Aquí todos los meses vienen recortados al mismo día, así que la mediana de
+  // cada fila y el mes en curso son comparables entre sí.
+  pintarTablaApilada("tabla-rt-comp", datasets, c.labels, "Categoría");
+
+  // El titular: cómo va el mes en curso contra el promedio del mismo tramo
+  const n = c.totales.length, act = c.totales[n - 1];
+  const previos = c.totales.slice(0, n - 1);
+  const prom = previos.reduce((a, b) => a + b, 0) / previos.length;
+  const dif = act - prom, pct = prom ? Math.round(100 * dif / prom) : 0;
+  const el = document.getElementById("rt-comp-resumen");
+  el.textContent = "A esta altura del mes llevas " + clp(act) + ", " +
+    Math.abs(pct) + "% " + (dif >= 0 ? "más" : "menos") +
+    " que el promedio del mismo tramo (" + clp(Math.round(prom)) + ").";
+  el.style.color = dif > 0 ? "var(--red)" : "var(--green)";
 }
 
 // ── Tablas: búsqueda, orden y "ver más" ────────────────────────────
@@ -862,8 +2273,93 @@ function pintarTabla({filas, cuerpo, contador, mas, cols, pref, fila, todas}) {
 function render() { renderRT(); renderOF(); }
 
 // ── VISTA 2: cierre mensual ────────────────────────────────────────
+
+// Quita el mes en curso de una serie con labels tipo "Ago 26".
+//
+// La pestaña "Cierre mensual" muestra meses cerrados. Dejar el mes en curso
+// -que el día 2 lleva dos días de movimientos- pinta una barra minúscula al
+// final que se lee como un desplome del gasto o de los ingresos.
+function _sinMesEnCurso(serie) {
+  if (!serie || !serie.labels || !serie.labels.length) return serie;
+  const hoy = new Date();
+  const MES = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+  const actual = MES[hoy.getMonth()] + " " + String(hoy.getFullYear()).slice(-2);
+  const i = serie.labels.indexOf(actual);
+  if (i < 0) return serie;
+  const corte = a => Array.isArray(a) ? a.slice(0, i) : a;
+  const out = {};
+  for (const k in serie) out[k] = corte(serie[k]);
+  return out;
+}
+
+// Los ultimos N meses CERRADOS, sobre la misma base que el titular.
+//
+// Es LA ventana de la pestaña de cierre, y existe para que no la elija cada
+// grafico por su cuenta. "Cuanto gastaste cada mes" la sacaba de
+// gasto_desglosable y mostraba seis -marzo a agosto-, mientras "Tendencia por
+// gran categoria" partia de la ventana de analisis, que incluye el mes en
+// curso, y al quitarlo se quedaba en cinco: dos tarjetas pegadas, distinto
+// numero de barras, y la de abajo rotulada "6 meses" con cinco.
+function mesesDeCierre(n) {
+  const gm = DATA.gasto_desglosable || {};
+  const enCurso = mesEnCurso();
+  return Object.keys(gm).sort().filter(x => x < enCurso).slice(-n);
+}
+
+// Recorta una serie a sus ultimos N puntos. Los campos que no son listas
+// -"ultimo_mes" y compania- pasan intactos.
+function _ultimos(serie, n) {
+  if (!serie || !serie.labels || serie.labels.length <= n) return serie;
+  const out = {};
+  for (const k in serie) out[k] = Array.isArray(serie[k]) ? serie[k].slice(-n) : serie[k];
+  return out;
+}
+
 function renderOF() {
   const k = DATA.kpis, ex = DATA.oficial_extra || {movs:[], tarjetas:[]};
+  pintarHeroOF(k);
+
+  // El total gastado cada mes, que es la pregunta mas simple de la pestaña y
+  // no estaba: habia siete graficos del desglose y ninguno de la suma.
+  //
+  // El mes en curso va aparte y en gris: lleva dos dias y ponerlo junto a los
+  // cerrados se lee como una caida enorme del gasto.
+  // El total se arma con las MISMAS piezas que los desgloses de esta pestaña
+  // -las compras del feed mas las cuentas de Sencillito- para que las barras
+  // sumen lo que dicen las de abajo.
+  //
+  // Antes venia de runway.gastos_mes, que mide la caja de la cartola: agosto
+  // salia 3,3M aqui y 2,9M en el desglose por categoria. Dos cifras del mismo
+  // mes en la misma pantalla. La de la cartola es mas completa y sigue siendo
+  // la del runway, donde se explica; aqui manda la coherencia interna.
+  // La misma base que el titular: la calcula el backend una sola vez para que
+  // no haya dos formas de sumar el mismo mes.
+  const gm = DATA.gasto_desglosable || {};
+  const enCurso = mesEnCurso();
+  // Esta es la vista de meses CERRADOS: el mes en curso no entra.
+  const mesesTot = mesesDeCierre(6);
+  const cerrados = mesesTot;
+  const prom = cerrados.length
+    ? cerrados.reduce((a, x) => a + gm[x], 0) / cerrados.length : 0;
+  chart("chOfTotal", {
+    type: "bar",
+    data: {labels: mesesTot.map(mesLabel),
+      datasets: [{data: mesesTot.map(x => gm[x]),
+        backgroundColor: mesesTot.map(x => x >= enCurso ? "rgba(148,163,184,.55)"
+          : (gm[x] > prom ? "rgba(227,73,72,.75)" : "rgba(27,175,122,.75)")),
+        borderRadius: 4}]},
+    options: {layout: {padding: {top: 16}}, responsive: true, maintainAspectRatio: false,
+      plugins: {legend: {display: false},
+        tooltip: {callbacks: {label: c => " " + clp(c.raw) +
+          (mesesTot[c.dataIndex] >= enCurso ? " (mes en curso)" : "")}}},
+      scales: {x: {grid: {display: false}}, y: ejeY}},
+  });
+  const notaTot = document.getElementById("of-total-nota");
+  if (notaTot) notaTot.innerHTML = cerrados.length
+    ? "Promedio de los " + cerrados.length + " meses cerrados: <b>" + clp(prom) +
+      "</b>. En rojo los que superaron ese promedio. Suma las compras del " +
+      "período más las cuentas de Sencillito, igual que los gráficos de abajo."
+    : "";
   document.getElementById("kpi-comprometido").textContent = clp(k.total_comprometido);
   document.getElementById("kpi-n-cuotas").textContent     = k.n_activas + " activas + " + k.n_nuevas + " nuevas";
   document.getElementById("kpi-cuota-prox").textContent   = clp(k.cuota_proximo_mes);
@@ -899,7 +2395,7 @@ function renderOF() {
     type:"doughnut",
     data:{ labels:["Contado","En cuotas"], datasets:[{ data:[cont, cuo],
       backgroundColor:["#0891b2","#7c3aed"], borderWidth:2, borderColor:"#fff" }] },
-    options:{ responsive:true, maintainAspectRatio:false, cutout:"58%",
+    options:{layout: {padding: {top: 16}},  responsive:true, maintainAspectRatio:false, cutout:"58%",
       plugins:{ legend:{position:"bottom", labels:{font:{size:11}}},
         tooltip:{ callbacks:{ label:c => " " + c.label + ": " + clp(c.raw) } } } }
   });
@@ -909,62 +2405,165 @@ function renderOF() {
     type:"bar",
     data:{ labels:cats.map(c=>c[0]), datasets:[{ data:cats.map(c=>c[1]),
       backgroundColor:"rgba(37,99,235,.8)", borderRadius:4 }] },
-    options:{ indexAxis:"y", responsive:true, maintainAspectRatio:false,
+    options:{layout: {padding: {top: 16}},  indexAxis:"y", responsive:true, maintainAspectRatio:false,
       plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:c => " " + clp(c.raw) } } },
       scales:{ x:ejeY, y:{ ticks:{font:{size:10}} } } }
   });
 
-  chartApilado("chOfCatMes", meses.map(mesLabel),
-    apilarPorMes(hist.filter(m => meses.indexOf(m.mes) >= 0), meses, m => m.cat || "Otros", TOP_CATS_OF));
+  pintarServicios();
+  // Este gráfico sale del ESTADO DE CUENTA DE LA TARJETA, no del gasto total.
+  //
+  // Un intento anterior le inyectó aquí las cuentas de Sencillito y estaba mal:
+  // se pagan por transferencia desde la cuenta corriente y no aparecen en
+  // ninguna factura de tarjeta. Sencillito vive en "Tendencia por gran
+  // categoría", que sí mide el gasto completo.
+  const lblCatMes = meses.map(mesLabel);
+  const dsCatMes = apilarPorMes(hist.filter(m => meses.indexOf(m.mes) >= 0), meses,
+                                m => m.cat || "Otros", TOP_CATS_OF);
+  chartApilado("chOfCatMes", lblCatMes, dsCatMes);
+  pintarTablaApilada("tabla-of-catmes", dsCatMes, lblCatMes, "Categoría");
 
-  // Saldo al cierre de cada mes. El punto es el último movimiento cargado de
-  // ese mes: si la cartola no llega a fin de mes, el tooltip lo dice.
-  const sal = DATA.cc_saldos || {labels:[], saldos:[], fechas:[]};
-  if (sal.labels.length) {
-    const ult = sal.fechas[sal.fechas.length-1];
-    document.getElementById("of-saldo-nota").textContent =
-      "Saldo que declara el banco al último movimiento de cada mes. Último dato: " + ult + ".";
-    chart("chartSaldo", {
-      type:"line",
-      data:{ labels:sal.labels, datasets:[{
-        label:"Saldo", data:sal.saldos,
-        borderColor:"#2a78d6", backgroundColor:"rgba(42,120,214,.10)",
-        borderWidth:2, fill:true, tension:.25,
-        pointRadius:5, pointHoverRadius:8,
-        pointBackgroundColor:sal.saldos.map(v => v < 0 ? "#e34948" : "#2a78d6"),
-        pointBorderColor:"#fff", pointBorderWidth:2 }] },
-      options:{ responsive:true, maintainAspectRatio:false,
-        plugins:{ legend:{display:false},
-          tooltip:{ callbacks:{
-            title:it => sal.labels[it[0].dataIndex] + " · al " + sal.fechas[it[0].dataIndex],
-            label:c => " Saldo: " + clp(c.raw),
-            afterLabel:c => { const i = c.dataIndex; if (!i) return "";
-              const d = sal.saldos[i] - sal.saldos[i-1];
-              return (d >= 0 ? "▲ +" : "▼ −") + clp(Math.abs(d)).slice(1) + " vs mes anterior"; } } } },
-        scales:{ x:{ grid:{display:false} }, y:ejeY } }
-    });
-  }
+  // Flujo y saldo en un solo gráfico.
+  //
+  // Estaban separados y la pregunta que uno se hace es una sola: entró más de
+  // lo que salió, ¿y con qué quedé? Con las barras arriba y la línea diez
+  // tarjetas más abajo había que recordar una para leer la otra. Abril lo
+  // muestra: entran 48,5M y el saldo salta a 44M; mayo salen 42,6M y vuelve a
+  // 7M. Es el mismo hecho contado dos veces.
+  //
+  // Dos escalas distintas comparten el dibujo, así que cada eje va del color
+  // de su serie: el saldo a la derecha en azul, el flujo a la izquierda.
+  //
+  // Todo lo de esta pestaña excluye el mes en curso: un mes de dos días junto
+  // a meses completos se lee como una caída y no lo es.
+  //
+  // Recortado a los mismos seis meses que el resto de la pestaña. Mostraba
+  // ocho -desde enero- y era la unica tarjeta con otra ventana: puestas una
+  // sobre otra, dos series de distinto largo se comparan mal. Marzo a agosto
+  // sigue conteniendo abril y mayo, que son los meses que explican la curva
+  // del saldo, asi que no se pierde nada.
+  const ccm = _ultimos(_sinMesEnCurso(DATA.cc_mensual), 6);
+  const sal = _ultimos(
+    _sinMesEnCurso(DATA.cc_saldos || {labels:[], saldos:[], fechas:[]}), 6);
+  // Alineado por label y no por posición: si un mes tiene movimientos pero la
+  // cartola de ese mes no llegó, las dos series tienen largos distintos y
+  // emparejarlas por índice correría el saldo un mes.
+  const saldoDe = {}, fechaDe = {};
+  sal.labels.forEach((l, i) => { saldoDe[l] = sal.saldos[i]; fechaDe[l] = sal.fechas[i]; });
 
-  if (DATA.cc_mensual.labels.length) {
+  if (ccm.labels.length) {
+    const serieSaldo = ccm.labels.map(l => l in saldoDe ? saldoDe[l] : null);
+    const haySaldo = serieSaldo.some(v => v !== null);
+    const nota = document.getElementById("of-saldo-nota");
+    if (nota) nota.textContent = haySaldo
+      ? "Las barras son lo que entró y salió en el mes; la línea, el saldo que declara el " +
+        "banco al último movimiento cargado. Último dato: " + sal.fechas[sal.fechas.length-1] + "."
+      : "Lo que entró y salió de la cuenta cada mes.";
+
+    // ¿Un eje o dos? Lo decide el DATO, no el espacio.
+    //
+    // Un primer intento comparaba los máximos que Chart.js calculaba para cada
+    // eje y apagaba el derecho si coincidían. En el escritorio coincidían y en
+    // el teléfono no -con menos alto elige otra cantidad de marcas-, así que
+    // la misma pantalla salía con uno o con dos ejes según el tamaño.
+    //
+    // El criterio estable es la proporción entre los máximos: si el saldo se
+    // mueve en el mismo orden que el flujo -hoy sí: 43,8M contra 48,5M- una
+    // escala común es fiel y la línea se compara de frente con las barras. Si
+    // el saldo es mucho menor -lo normal fuera de abril: 2M contra 8M- una
+    // escala común lo aplasta contra el suelo y ahí el segundo eje se gana su
+    // lugar.
+    const maxFlujo = Math.max(0, ...ccm.abonos, ...ccm.cargos);
+    const vistos = serieSaldo.filter(v => v !== null && v !== undefined);
+    const maxSaldo = vistos.length ? Math.max(...vistos.map(Math.abs)) : 0;
+    const dosEjes = haySaldo && maxFlujo > 0 && maxSaldo < maxFlujo * 0.5;
+    // En el teléfono cada eje se come 74 de 375 píxeles: dos dejaban las
+    // barras en 8 px de ancho. Se queda el título -avisa que la línea va en
+    // otra escala- y el número exacto lo da el tooltip al tocar.
+    //
+    // El respaldo de 1024 no es decorativo: midiendo justo después de un
+    // cambio de tamaño la ventana llegó a reportar 0 de ancho, y sin él una
+    // pantalla grande se habría quedado sin los números del eje derecho.
+    const ancho = document.documentElement.clientWidth || window.innerWidth || 1024;
+    const numerosDer = dosEjes && ancho >= 560;
+
+    // La línea va SIN relleno y por encima: como área tapaba las barras de los
+    // meses altos -abril quedaba escondido bajo el azul- y ese mes es
+    // justamente el que explica la curva.
+    const ds = [
+      { label:"Ingresos", data:ccm.abonos, backgroundColor:"rgba(16,185,129,.75)",
+        borderRadius:4, order:2 },
+      { label:"Egresos",  data:ccm.cargos, backgroundColor:"rgba(239,68,68,.72)",
+        borderRadius:4, order:2 }];
+    if (haySaldo) ds.push({
+      type:"line", label:"Saldo al cierre", data:serieSaldo,
+      yAxisID: dosEjes ? "y1" : "y",
+      // El backgroundColor no pinta area -fill va en false-, solo el cuadrito
+      // de la leyenda: sin el salia una caja gris con borde azul entre dos
+      // cajas solidas.
+      borderColor:"#2a78d6", backgroundColor:"#2a78d6",
+      borderWidth:2.5, fill:false, tension:.25,
+      spanGaps:true, pointRadius:4, pointHoverRadius:8,
+      pointBackgroundColor:serieSaldo.map(v => v < 0 ? "#e34948" : "#2a78d6"),
+      pointBorderColor:"#fff", pointBorderWidth:2, order:0 });
+
     chart("chartCC", {
       type:"bar",
-      data:{ labels:DATA.cc_mensual.labels, datasets:[
-        { label:"Ingresos", data:DATA.cc_mensual.abonos, backgroundColor:"rgba(16,185,129,.75)", borderRadius:4 },
-        { label:"Egresos",  data:DATA.cc_mensual.cargos, backgroundColor:"rgba(239,68,68,.72)", borderRadius:4 }] },
+      data:{ labels:ccm.labels, datasets:ds },
       options:{ responsive:true, maintainAspectRatio:false,
-        plugins:{ legend:{position:"top"}, tooltip:{ callbacks:{ label:c => " " + c.dataset.label + ": " + clp(c.raw) } } },
-        scales:{ x:{grid:{display:false}}, y:ejeY } }
+        interaction:{ mode:"index", intersect:false },
+        // La leyenda sigue el orden de los datasets y no el de dibujo: la
+        // línea se dibuja encima (order 0) y por eso encabezaba la lista.
+        plugins:{ legend:{position:"top",
+            labels:{ sort:(a, b) => a.datasetIndex - b.datasetIndex } },
+          tooltip:{ callbacks:{
+            title:it => { const l = it[0].label;
+              return l + (fechaDe[l] ? " · saldo al " + fechaDe[l] : ""); },
+            label:c => " " + c.dataset.label + ": " + clp(c.raw),
+            afterLabel:c => {
+              if (c.dataset.label !== "Saldo al cierre") return "";
+              const prev = c.dataIndex > 0 ? serieSaldo[c.dataIndex - 1] : null;
+              if (prev === null || prev === undefined || c.raw === null) return "";
+              const d = c.raw - prev;
+              return (d >= 0 ? "   ▲ +" : "   ▼ −") + clp(Math.abs(d)).slice(1) +
+                     " vs mes anterior"; } } } },
+        scales:{
+          x:{ grid:{display:false} },
+          y:{ ...ejeY, position:"left",
+              title:{ display:dosEjes, text:"Flujo del mes", color:"#64748b",
+                      font:{size:10} } },
+          y1:{ ...ejeY, position:"right", display:dosEjes,
+               grid:{ drawOnChartArea:false },
+               ticks:{ ...ejeY.ticks, color:"#2a78d6", display:numerosDer },
+               title:{ display:true, text:"Saldo al cierre", color:"#2a78d6",
+                       font:{size:10} } } } }
     });
   }
 
   if (DATA.proyeccion.labels.length) {
     const pMax = Math.max(...DATA.proyeccion.totales);
+  // La suma de lo que queda por facturar. Es el numero que se compara contra
+  // la web del banco para saber si el sistema tiene toda la deuda cargada.
+  const pr = DATA.proyeccion || {labels: [], totales: []};
+  const notaCuo = document.getElementById("of-cuotas-nota");
+  if (notaCuo) {
+    const tot = pr.total_periodo || (pr.totales || []).reduce((a, x) => a + x, 0);
+    const nb = pr.n_banco || 0;
+    notaCuo.innerHTML = pr.labels.length
+      ? "Quedan <b>" + clp(tot) + "</b> por facturar en " + pr.labels.length +
+        " meses, desde " + esc(pr.labels[0]) + " hasta " +
+        esc(pr.labels[pr.labels.length - 1]) + ". " +
+        (nb ? "Los primeros " + nb + " salen de la proyección del banco; el resto " +
+              "se calcula con las cuotas cargadas." : "Calculado con las cuotas cargadas.")
+      : "No quedan cuotas por facturar.";
+  }
+
     chart("chartProy", {
       type:"bar",
       data:{ labels:DATA.proyeccion.labels, datasets:[{ data:DATA.proyeccion.totales,
         backgroundColor:DATA.proyeccion.totales.map(v => v===pMax ? "rgba(124,58,237,.85)" : "rgba(37,99,235,.7)"),
         borderRadius:5 }] },
-      options:{ responsive:true, maintainAspectRatio:false,
+      options:{layout: {padding: {top: 16}},  responsive:true, maintainAspectRatio:false,
         plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:c => " Cuotas: " + clp(c.raw) } } },
         scales:{ x:{grid:{display:false}}, y:ejeY } }
     });
@@ -983,6 +2582,18 @@ function renderOF() {
       "<td>" + esc(m.cuota || "—") + "</td>" +
       "<td class='num' style='font-weight:600'>" + clp(m.monto) + "</td>"
   });
+
+  // Las ya facturadas se cuentan, no se esconden: si desaparecen sin decirlo,
+  // la tabla parece haber perdido filas.
+  const nf = document.getElementById("of-cuotas-facturadas");
+  if (nf) {
+    const yaf = DATA.cuotas_facturadas || 0;
+    nf.textContent = yaf
+      ? "Solo lo que queda por facturar. " + yaf + (yaf === 1
+          ? " compra ya terminó de pagarse y salió de la lista."
+          : " compras ya terminaron de pagarse y salieron de la lista.")
+      : "Solo lo que queda por facturar.";
+  }
 
   const tb = document.getElementById("tablaCuotasBody");
   tb.innerHTML = "";
@@ -1027,10 +2638,12 @@ function analizar(modo) {
   const prop = modo === "cerrado" ? 1 : o.dia / o.dias_mes;
 
   // Promedio mensual por categoría en los meses anteriores
+  // Lo comprado en el extranjero se analiza como categoría propia: así el alza
+  // en dólares se ve como tal y no diluida entre Suscripciones y Otros.
   const porCat = {}, catsPrev = {};
-  delMes.forEach(m => { porCat[m.cat] = (porCat[m.cat] || 0) + m.monto; });
+  delMes.forEach(m => { porCat[catDe(m)] = (porCat[catDe(m)] || 0) + m.monto; });
   gasto.filter(m => previos.includes(m.mes))
-       .forEach(m => { catsPrev[m.cat] = (catsPrev[m.cat] || 0) + m.monto; });
+       .forEach(m => { catsPrev[catDe(m)] = (catsPrev[catDe(m)] || 0) + m.monto; });
 
   const desvios = Object.keys(Object.assign({}, porCat, catsPrev)).map(cat => {
     const real = porCat[cat] || 0;
@@ -1057,17 +2670,28 @@ function analizar(modo) {
   const real = delMes.reduce((a,m) => a + m.monto, 0);
 
   // Flujo de caja del mes objetivo (cuenta corriente), si la cartola ya llegó
-  const cc = DATA.cc_mensual || {labels:[], abonos:[], cargos:[]};
+  const cc = _sinMesEnCurso(DATA.cc_mensual || {labels:[], abonos:[], cargos:[]});
   const iCC = cc.labels.indexOf(mesLabel(objetivo));
   const flujo = iCC >= 0
     ? {ingresos: cc.abonos[iCC], egresos: cc.cargos[iCC],
        neto: cc.abonos[iCC] - cc.cargos[iCC]}
     : null;
 
+  // La serie del sparkline, con TODOS los meses cortados al mismo día.
+  //
+  // Mostraba los anteriores completos junto al mes en curso con dos días: la
+  // barra de septiembre se veía diminuta y no porque se gaste menos, sino
+  // porque se comparaba un mes entero contra dos días. Esta vista responde
+  // "cómo voy", y para eso los períodos van cortados a la misma altura.
+  const corteDia = modo === "cerrado" ? 31 : (o.dia || 31);
+  const hastaDia = m => {
+    const d = parseInt(String(m.fecha || "").slice(0, 2), 10);
+    return !d || d <= corteDia;
+  };
   return {modo, objetivo, meses, previos, real, esperadoHoy, promedioMes: totalPrev,
           proyectado: prop > 0 ? real / prop : 0, desvios, hormiga, top, flujo,
-          nMovs: delMes.length,
-          serie: meses.map(mm => gasto.filter(m => m.mes === mm)
+          nMovs: delMes.length, corteDia,
+          serie: meses.map(mm => gasto.filter(m => m.mes === mm && hastaDia(m))
                                       .reduce((s,m) => s + m.monto, 0))};
 }
 
@@ -1076,16 +2700,21 @@ function renderAN() {
   const a = analizar(modo);
   const cont = document.getElementById("an-desvios");
   const o = DATA.on_time || {};
-  // Rotula el chip con el mes real que se va a analizar
+  // El selector "Qué analizar" ya no existe: esta pestaña es del mes en curso y
+  // el análisis del mes cerrado vive en "Cierre mensual". Se consulta el
+  // elemento con cuidado porque puede no estar, y sin esta guarda renderAN
+  // reventaba antes de dibujar el gráfico y la tarjeta quedaba en blanco.
   const cerrado = ((o.meses || []).map(m => m.v).sort().filter(m => m < o.mes_actual).pop());
-  if (cerrado)
-    document.getElementById("an-chip-cerrado").textContent = "Cierre de " + mesLabel(cerrado);
+  const chipCerrado = document.getElementById("an-chip-cerrado");
+  if (cerrado && chipCerrado)
+    chipCerrado.textContent = "Cierre de " + mesLabel(cerrado);
   if (!a) {
     cont.innerHTML = '<p class="vacio">Se necesita al menos un mes anterior completo para comparar.</p>';
     return;
   }
   const esCerrado = modo === "cerrado";
-  document.getElementById("an-aviso").innerHTML = esCerrado
+  const avisoBox = document.getElementById("an-aviso");
+  if (avisoBox) avisoBox.innerHTML = esCerrado
     ? "Mes <b>" + mesLabel(a.objetivo) + " ya cerrado</b>, completo, contra el promedio de los " +
       a.previos.length + " meses anteriores."
     : "Mes en curso contra tu propio promedio, prorrateado al día que llevamos. " +
@@ -1128,12 +2757,41 @@ function renderAN() {
 
   // Chart.js entra en bucle si mide un contenedor con display:none. Los gráficos
   // se dibujan solo con la vista visible; el click de la pestaña vuelve a llamar.
-  if (document.getElementById("vista-an").style.display === "none") return;
+  //
+  // Se miran las DOS vistas porque los gráficos de esta función quedaron
+  // repartidos: el ritmo del mes vive en "Mes en curso" y las dos tendencias de
+  // seis meses se mudaron a "Cierre mensual". Preguntando solo por una, las
+  // tendencias quedaban en blanco al abrir la otra pestaña.
+  const visible = ["vista-rt", "vista-of"].some(
+    id => (document.getElementById(id) || {}).style?.display !== "none");
+  if (!visible) return;
 
-  // Tendencia por gran categoría: bloques fijos, mismo color en ambos modos
-  const gastoTodo = (o.feed || []).filter(m => m.gasto && a.meses.includes(m.mes));
-  chartApilado("chAnGrupos", a.meses.map(mesLabel),
-    apilarPorMes(gastoTodo, a.meses, m => m.grupo || "Otros", GRUPOS));
+  // Tendencia por gran categoría: bloques fijos, mismo color en ambos modos.
+  //
+  // La ventana es la misma que la del gráfico de totales, y sale de la misma
+  // función. Antes se filtraba el mes en curso de `a.meses`, que son seis
+  // CONTANDO el actual: quedaban cinco barras, abril a agosto, justo debajo de
+  // un gráfico que mostraba seis desde marzo. Dos ventanas distintas en la
+  // misma pestaña es exactamente lo que hace imposible cuadrar las cifras.
+  const mesesCerrados = mesesDeCierre(6);
+  // Con las cuentas de Sencillito, igual que los otros gráficos de la pestaña:
+  // sin ellas las barras sumaban 2.743.392 donde el total decía 3.495.239.
+  const servG = DATA.servicios || {};
+  const movsServG = [];
+  (servG.meses || []).forEach((mm, i) => {
+    const t = (servG.series || []).reduce((a, x) => a + (x.values[i] || 0), 0);
+    if (t > 0) movsServG.push({mes: mm, grupo: "Cuentas (Sencillito)", monto: t, gasto: true});
+  });
+  const gastoTodo = (o.feed || []).filter(m => m.gasto && mesesCerrados.includes(m.mes))
+    .concat(movsServG.filter(m => mesesCerrados.includes(m.mes)));
+  const gruposConServ = ["Cuentas (Sencillito)"].concat(GRUPOS);
+  // La tabla sale de los MISMOS datasets que el gráfico: si se recalculara por
+  // separado, las dos cosas podrían discrepar y ya sabemos cómo termina eso.
+  const dsGrupos = apilarPorMes(gastoTodo, mesesCerrados,
+                                m => m.grupo || "Otros", gruposConServ);
+  const lblGrupos = mesesCerrados.map(mesLabel);
+  chartApilado("chAnGrupos", lblGrupos, dsGrupos);
+  pintarTablaApilada("tabla-an-grupos", dsGrupos, lblGrupos, "Categoría");
 
   // Sparkline del gasto mensual, con el mes en curso destacado
   chart("chAnRitmo", {
@@ -1177,6 +2835,17 @@ function renderAN() {
       (c.n === 1 ? " compra" : " compras") + "</span></span>" +
       "<b>" + clp(c.monto) + "</b></li>").join("") + "</ul>";
   };
+  // Con dos días de mes esto es ruido, no información: "los 6 comercios que más
+  // te cuestan" cuando hubo 6 compras en total son todos los comercios. El
+  // patrón de verdad está en "Cuánto alcanza", sobre seis meses; aquí solo
+  // tiene sentido cuando el mes ya lleva camino recorrido.
+  //
+  // Un primer intento midió cuántos comercios había en la lista y no filtró
+  // nada: cuatro comercios de una compra cada uno pasaban el umbral igual.
+  // Lo que importa es el volumen del mes, no el largo de la lista.
+  const gridPat = document.getElementById("rt-grid-patrones");
+  const suficiente = (o.dia || 0) >= 7 && (o.n_movs || 0) >= 15;
+  if (gridPat) gridPat.style.display = suficiente ? "" : "none";
   lista("an-hormiga", a.hormiga, "Sin compras chicas repetidas este mes. Bien ahí.");
   lista("an-comercios", a.top, "Aún no hay movimientos este mes.");
 
@@ -1244,16 +2913,90 @@ function renderAN() {
     ico + "</div><div><h4>" + tit + "</h4><p>" + txt + "</p></div></div>").join("");
 }
 
+// ── Vista 4: todo el movimiento, sin filtros ───────────────────────
+function renderBR() {
+  const b = DATA.bruto || {};
+  const box = document.getElementById("br-hero");
+  if (!b.disponible) {
+    document.getElementById("br-hero-frase").textContent =
+      "Todavía no hay cartola cargada.";
+    return;
+  }
+  const n = b.labels.length;
+  // El último mes de la cartola puede ser el mes en curso, que va a medias.
+  // Se muestra el último CERRADO para no comparar dos días con meses enteros.
+  const enCurso = mesEnCurso();
+  let i = n - 1;
+  while (i > 0 && b.meses[i] >= enCurso) i--;
+  const ent = b.tot_entradas[i], sal = b.tot_salidas[i], neto = b.neto[i];
+
+  box.className = "hero" + (neto >= 0 ? " ok" : "");
+  document.getElementById("br-hero-estado").textContent =
+    "Movimiento real · " + b.labels[i];
+  document.getElementById("br-hero-frase").innerHTML =
+    "Entraron <b>" + clp(ent) + "</b> y salieron <b>" + clp(sal) + "</b>.";
+  document.getElementById("br-hero-accion").innerHTML =
+    (neto >= 0 ? "La cuenta quedó <b>" + clp(neto) + "</b> arriba"
+               : "La cuenta quedó <b>" + clp(Math.abs(neto)) + "</b> abajo") +
+    " en " + b.n_movs[i] + " movimientos.";
+
+  chart("chBrFlujo", {
+    type: "bar",
+    data: { labels: b.labels, datasets: [
+      { label: "Entró", data: b.tot_entradas, backgroundColor: "rgba(16,185,129,.75)", borderRadius: 4 },
+      { label: "Salió", data: b.tot_salidas, backgroundColor: "rgba(239,68,68,.72)", borderRadius: 4 }] },
+    options: { responsive: true, maintainAspectRatio: false,
+      layout: { padding: { top: 16 } },
+      interaction: { mode: "index", intersect: false },
+      plugins: { legend: { position: "top" },
+        tooltip: { callbacks: {
+          label: c => " " + c.dataset.label + ": " + clp(c.raw),
+          footer: it => { const j = it[0].dataIndex;
+            return (b.neto[j] >= 0 ? "Quedó arriba: " : "Quedó abajo: ") +
+                   clp(Math.abs(b.neto[j])); } } } },
+      scales: { x: { grid: { display: false } }, y: ejeY } },
+  });
+
+  const ds = (filas, base) => filas.map((f, k) => ({
+    label: f.cat, data: f.values, backgroundColor: PALETA[k % PALETA.length],
+  }));
+  pintarTablaApilada("tabla-br-entradas", ds(b.entradas), b.labels, "Origen");
+  pintarTablaApilada("tabla-br-salidas", ds(b.salidas), b.labels, "Destino");
+}
+
 // ── Tabs ───────────────────────────────────────────────────────────
-const VISTAS = ["rt", "of", "an"];
+const VISTAS = ["rt", "of", "rw", "br"];
 VISTAS.forEach(v => {
   document.getElementById("tab-" + v).onclick = () => {
     VISTAS.forEach(x => {
       document.getElementById("tab-" + x).classList.toggle("on", x === v);
       document.getElementById("vista-" + x).style.display = x === v ? "block" : "none";
     });
-    // Chart.js necesita re-medir al mostrarse un contenedor que estaba oculto
-    if (v === "an") renderAN();
+    // Chart.js necesita re-medir al mostrarse un contenedor que estaba oculto:
+    // un canvas dibujado dentro de un display:none queda con altura cero y al
+    // mostrar la pestaña se ve una tarjeta vacía. Pasa con TODAS las vistas, no
+    // solo con las que se vuelven a renderizar.
+    // Cada vista se vuelve a dibujar al mostrarse. Un canvas creado dentro de
+    // un display:none queda de 0x0 y no hay resize que lo recupere: Chart.js
+    // fija ese tamaño en el estilo inline y ni resize(), ni pasarle medidas
+    // explícitas, ni update() lo devuelven. Lo único que funciona es rehacer
+    // el gráfico con el contenedor ya visible.
+    // "of" necesita las dos: renderOF dibuja sus propios graficos, y renderAN
+    // dibuja las dos tendencias de 6 meses que se mudaron a esa pestaña por ser
+    // historicas. Sin la segunda llamada quedaban en blanco justo ahi.
+    // Cada vista se redibuja entera al mostrarse. Un canvas creado dentro de un
+    // display:none queda de 0x0 y no hay forma de recuperarlo: Chart.js fija ese
+    // tamano en el estilo inline y ni resize(), ni pasarle medidas explicitas,
+    // ni update() lo devuelven. Lo unico que funciona es rehacer el grafico con
+    // el contenedor ya visible.
+    //
+    // "of" llama a las dos porque sus graficos quedaron repartidos entre dos
+    // funciones: renderOF dibuja los suyos y renderAN la tendencia de 6 meses
+    // que se mudo a esa pestaña por ser historica.
+    if (v === "rt") { renderRT(); renderAN(); }
+    if (v === "of") { renderOF(); renderAN(); }
+    if (v === "rw") renderRW();
+    if (v === "br") renderBR();
   };
 });
 
